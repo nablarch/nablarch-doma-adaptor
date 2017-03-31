@@ -1,0 +1,54 @@
+group = 'com.nablarch.integration'
+version = '1.0.0'
+description = 'DomaによるDBアクセス機能の拡張実装'
+
+repositories {
+  mavenLocal()
+  maven { url "${developLibUrl}" }
+  jcenter()
+}
+
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url "${developLibUrl}" }
+    jcenter()
+  }
+  dependencies {
+    classpath "com.nablarch.dev:nablarch-gradle-plugin:${nablarchGradlePluginVersion}"
+    classpath "net.saliman:gradle-cobertura-plugin:2.2.3"
+  }
+}
+
+apply {
+  plugin 'com.nablarch.dev.nablarch-build'
+  plugin 'com.nablarch.dev.nablarch-sonarqube'
+  plugin 'com.nablarch.dev.nablarch-maven-deploy'
+  plugin 'com.nablarch.dev.nablarch-version'
+  from 'https://github.com/nablarch/nablarch-gradle-plugin/blob/develop/scripts/cobertura/cobertura-0.0.1.gradle?raw=true'
+}
+
+// ビルド時のJavaバージョンを指定する
+sourceCompatibility=JavaVersion.VERSION_1_8
+targetCompatibility=JavaVersion.VERSION_1_8
+
+dependencies {
+  provided 'org.seasar.doma:doma:2.16.0'
+  compile "com.nablarch.framework:nablarch-core-repository:${nablarchCoreRepositoryVersion}"
+
+  testCompile 'org.jmockit:jmockit:1.30'
+  testCompile 'junit:junit:4.12'
+  testCompile 'com.h2database:h2:1.4.194'
+
+  testRuntime "com.nablarch.framework:nablarch-core-applog:${nablarchCoreApplogVersion}"
+  testRuntime "com.nablarch.framework:nablarch-core-jdbc:${nablarchCoreJdbcVersion}"
+}
+
+
+test {
+  ignoreFailures = true
+}
+
+wrapper {
+  gradleVersion = '2.13'
+}

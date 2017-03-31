@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+
+    <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="dialect" />
+    <component class="org.h2.jdbcx.JdbcDataSource" name="dataSource">
+        <property name="user" value="sa" />
+        <property name="password" value="pass" />
+        <property name="url" value="jdbc:h2:mem:ssd;LOCK_TIMEOUT=15000;DB_CLOSE_DELAY=-1" />
+    </component>
+
+</component-configuration>
