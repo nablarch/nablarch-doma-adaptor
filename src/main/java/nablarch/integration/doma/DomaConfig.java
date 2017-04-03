@@ -54,7 +54,7 @@ public class DomaConfig implements Config {
         localTransactionDataSource = new LocalTransactionDataSource(dataSource);
 
         localTransactionManager = new LocalTransactionManager(
-                ((LocalTransactionDataSource)getDataSource()).getLocalTransaction(getJdbcLogger()));
+                localTransactionDataSource.getLocalTransaction(getJdbcLogger()));
     }
 
 
