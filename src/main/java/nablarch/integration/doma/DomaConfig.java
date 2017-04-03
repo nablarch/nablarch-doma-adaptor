@@ -18,7 +18,7 @@ import org.seasar.doma.jdbc.tx.TransactionManager;
  * @author Naoki Yamamoto
  */
 @SingletonConfig
-public class DomaConfig implements Config {
+public final class DomaConfig implements Config {
 
     /** シングルトンインスタンス */
     private static final DomaConfig CONFIG = new DomaConfig();
