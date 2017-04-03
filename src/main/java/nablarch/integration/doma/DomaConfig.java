@@ -23,8 +23,8 @@ public final class DomaConfig implements Config {
     /** シングルトンインスタンス */
     private static final DomaConfig CONFIG = new DomaConfig();
 
-    /** {@link SystemRepository}に定義されているダイアレクト名 */
-    private static final String DIALECT_NAME = "dialect";
+    /** {@link SystemRepository}に定義されているDomaのダイアレクト名 */
+    private static final String DIALECT_NAME = "domaDialect";
 
     /** {@link SystemRepository}に定義されているデータソース名 */
     private static final String DATA_SOURCE_NAME = "dataSource";

@@ -3,7 +3,7 @@
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
 
-    <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="dialect" />
+    <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="domaDialect" />
     <component class="org.h2.jdbcx.JdbcDataSource" name="dataSource">
         <property name="user" value="sa" />
         <property name="password" value="pass" />

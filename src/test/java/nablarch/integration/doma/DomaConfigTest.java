@@ -78,10 +78,10 @@ public class DomaConfigTest {
      */
     @Test
     public void dialect_undefined() throws Exception {
-        repositoryResource.addComponent("dialect", null);
+        repositoryResource.addComponent("domaDialect", null);
 
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage(is("specified dialect is not registered in SystemRepository."));
+        expectedException.expectMessage(is("specified domaDialect is not registered in SystemRepository."));
 
         Deencapsulation.newInstance(DomaConfig.class);
     }
