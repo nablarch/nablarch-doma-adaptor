@@ -1,5 +1,6 @@
 package nablarch.integration.doma;
 
+import java.util.logging.Level;
 import javax.sql.DataSource;
 
 import nablarch.core.repository.SystemRepository;
@@ -7,6 +8,7 @@ import nablarch.core.util.annotation.Published;
 import org.seasar.doma.SingletonConfig;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.Naming;
+import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
@@ -54,7 +56,7 @@ public final class DomaConfig implements Config {
         localTransactionDataSource = new LocalTransactionDataSource(dataSource);
 
         localTransactionManager = new LocalTransactionManager(
-                localTransactionDataSource.getLocalTransaction(getJdbcLogger()));
+                localTransactionDataSource.getLocalTransaction(new UtilLoggingJdbcLogger(Level.FINE)));
     }
 
 
