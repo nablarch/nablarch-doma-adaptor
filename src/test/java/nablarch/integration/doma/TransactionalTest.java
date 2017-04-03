@@ -1,17 +1,23 @@
 package nablarch.integration.doma;
 
-import mockit.Mocked;
-import mockit.Verifications;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.db.helper.DatabaseTestRunner;
+import nablarch.test.support.db.helper.VariousDbTestHelper;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.seasar.doma.jdbc.tx.LocalTransaction;
-import org.seasar.doma.jdbc.tx.TransactionIsolationLevel;
 
 /**
  * {@link Transactional}のテストクラス。
@@ -22,13 +28,15 @@ public class TransactionalTest {
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("config.xml");
 
-    @Before
-    public void setUp() throws Exception {
-
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        VariousDbTestHelper.createTable(TestTable.class);
     }
 
-    @Mocked
-    private LocalTransaction localTransaction;
+    @Before
+    public void setUp() throws Exception {
+        VariousDbTestHelper.delete(TestTable.class);
+    }
 
     /**
      * {@link Transactional}が設定されたハンドラ内でトランザクション制御が行われていること
@@ -38,23 +46,13 @@ public class TransactionalTest {
     public void handle_commit() throws Exception {
         new ExecutionContext()
                 .addHandler((o, context) -> {
-                    // トランザクションが開始されていないこと
-                    new Verifications() {{
-                       localTransaction.begin(TransactionIsolationLevel.DEFAULT);
-                       times = 0;
-                    }};
 
                     // 後続ハンドラを実行
                     Object result = context.handleNext(o);
 
                     // トランザクションがコミットされていること
-                    new Verifications() {{
-                        localTransaction.begin(TransactionIsolationLevel.DEFAULT);
-                        times = 1;
-                        localTransaction.commit();
-                        times = 1;
-                    }};
-
+                    assertThat("トランザクションがコミットされたため、レコードを1件取得できること",
+                            VariousDbTestHelper.findAll(TestTable.class).size(), is(1));
 
                     return result;
                 })
@@ -62,13 +60,10 @@ public class TransactionalTest {
                     @Override
                     @Transactional
                     public Object handle(String data, ExecutionContext context) {
-                        // トランザクションが開始されていること
-                        new Verifications() {{
-                            localTransaction.begin(TransactionIsolationLevel.DEFAULT);
-                            times = 1;
-                            localTransaction.commit();
-                            times = 0;
-                        }};
+                        DomaDaoRepository.get(TestTableDao.class).insert(new TestTableForDoma("test"));
+
+                        assertThat("トランザクションがコミットされていないため、レコードが取得できないこと",
+                                VariousDbTestHelper.findAll(TestTable.class).size(), is(0));
                         return null;
                     }})
                 .handleNext("test");
@@ -83,25 +78,14 @@ public class TransactionalTest {
     public void handle_rollback() throws Exception {
         new ExecutionContext()
                 .addHandler((o, context) -> {
-                    // トランザクションが開始されていないこと
-                    new Verifications() {{
-                        localTransaction.begin(TransactionIsolationLevel.DEFAULT);
-                        times = 0;
-                    }};
 
                     // 後続ハンドラを実行
                     try {
                         Object result = context.handleNext(o);
                     } catch (RuntimeException e) {
                         // トランザクションがロールバックされていること
-                        new Verifications() {{
-                            localTransaction.begin(TransactionIsolationLevel.DEFAULT);
-                            times = 1;
-                            localTransaction.rollback();
-                            times = 1;
-                            localTransaction.commit();
-                            times = 0;
-                        }};
+                        assertThat("トランザクションがロールバックされているため、レコードが取得できないこと",
+                                VariousDbTestHelper.findAll(TestTable.class).size(), is(0));
                     }
                     return null;
                 })
@@ -109,27 +93,42 @@ public class TransactionalTest {
                     @Override
                     @Transactional
                     public Object handle(String data, ExecutionContext context) {
+                        DomaDaoRepository.get(TestTableDao.class).insert(new TestTableForDoma("test"));
+
                         throw new RuntimeException("test");
                     }})
                 .handleNext("test");
     }
 
-    @Test
-    public void handle_isolationLavel() throws Exception {
-        new ExecutionContext()
-                .addHandler(new Handler<String, Object>() {
-                    @Override
-                    @Transactional(transactionIsolationLevel = TransactionIsolationLevel.READ_COMMITTED)
-                    public Object handle(String data, ExecutionContext context) {
-                        // 分離レベルがREAD_COMMITTEDでトランザクションが開始されていること
-                        new Verifications() {{
-                            localTransaction.begin(TransactionIsolationLevel.DEFAULT);
-                            times = 0;
-                            localTransaction.begin(TransactionIsolationLevel.READ_COMMITTED);
-                            times = 1;
-                        }};
-                        return null;
-                    }})
-                .handleNext("test");
+    @Entity
+    @Table(name = "TEST_TABLE")
+    public static class TestTable {
+
+        public TestTable() {
+        }
+
+        public TestTable(String name) {
+            this.name = name;
+        }
+
+        @Id
+        @Column(name = "NAME")
+        public String name;
+    }
+
+    @org.seasar.doma.Entity
+    @org.seasar.doma.Table(name = "TEST_TABLE")
+    public static class TestTableForDoma {
+
+        public TestTableForDoma() {
+        }
+
+        public TestTableForDoma(String name) {
+            this.name = name;
+        }
+
+        @org.seasar.doma.Id
+        @org.seasar.doma.Column(name = "NAME")
+        public String name;
     }
 }
