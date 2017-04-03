@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import nablarch.core.util.annotation.Published;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Interceptor;
 import nablarch.fw.Interceptor.Impl;
@@ -19,6 +20,7 @@ import org.seasar.doma.jdbc.tx.TransactionIsolationLevel;
 @Interceptor(TransactionalImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Published
 public @interface Transactional {
 
     /** トランザクション分離レベル */

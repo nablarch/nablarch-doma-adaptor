@@ -3,11 +3,14 @@ package nablarch.integration.doma;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import nablarch.core.util.annotation.Published;
+
 /**
  * Domaで使用するDaoの実装クラスを生成・保持するクラス。
  *
  * @author Naoki Yamamoto
  */
+@Published
 public final class DomaDaoRepository {
 
     /** Dao実装クラスのインスタンスを保持するMap */

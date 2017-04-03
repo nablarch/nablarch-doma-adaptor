@@ -3,6 +3,7 @@ package nablarch.integration.doma;
 import javax.sql.DataSource;
 
 import nablarch.core.repository.SystemRepository;
+import nablarch.core.util.annotation.Published;
 import org.seasar.doma.SingletonConfig;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.Naming;
@@ -68,6 +69,7 @@ public class DomaConfig implements Config {
     }
 
     @Override
+    @Published
     public TransactionManager getTransactionManager() {
         return localTransactionManager;
     }
@@ -81,6 +83,7 @@ public class DomaConfig implements Config {
      * シングルトンインスタンスを取得する。
      * @return シングルトンインスタンス
      */
+    @Published
     public static DomaConfig singleton() {
         return CONFIG;
     }
