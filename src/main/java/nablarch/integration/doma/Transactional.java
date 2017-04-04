@@ -24,7 +24,7 @@ import org.seasar.doma.jdbc.tx.TransactionIsolationLevel;
 public @interface Transactional {
 
     /** トランザクション分離レベル */
-    TransactionIsolationLevel transactionIsolationLevel() default TransactionIsolationLevel.DEFAULT;
+    TransactionIsolationLevel transactionIsolationLevel() default TransactionIsolationLevel.READ_COMMITTED;
 
     /**
      * {@link Transactional}アノテーションの{@link Interceptor}クラス。
