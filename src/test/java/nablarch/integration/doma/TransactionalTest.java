@@ -45,17 +45,6 @@ public class TransactionalTest {
     @Test
     public void handle_commit() throws Exception {
         new ExecutionContext()
-                .addHandler((o, context) -> {
-
-                    // 後続ハンドラを実行
-                    Object result = context.handleNext(o);
-
-                    // トランザクションがコミットされていること
-                    assertThat("トランザクションがコミットされたため、レコードを1件取得できること",
-                            VariousDbTestHelper.findAll(TestTable.class).size(), is(1));
-
-                    return result;
-                })
                 .addHandler(new Handler<String, Object>() {
                     @Override
                     @Transactional
@@ -67,6 +56,9 @@ public class TransactionalTest {
                         return null;
                     }})
                 .handleNext("test");
+
+        assertThat("トランザクションがコミットされたため、レコードを1件取得できること",
+                VariousDbTestHelper.findAll(TestTable.class).size(), is(1));
     }
 
     /**
@@ -78,14 +70,10 @@ public class TransactionalTest {
     public void handle_rollback() throws Exception {
         new ExecutionContext()
                 .addHandler((o, context) -> {
-
-                    // 後続ハンドラを実行
                     try {
-                        Object result = context.handleNext(o);
+                        context.handleNext(o);
                     } catch (RuntimeException e) {
-                        // トランザクションがロールバックされていること
-                        assertThat("トランザクションがロールバックされているため、レコードが取得できないこと",
-                                VariousDbTestHelper.findAll(TestTable.class).size(), is(0));
+                        // NOP
                     }
                     return null;
                 })
@@ -98,6 +86,9 @@ public class TransactionalTest {
                         throw new RuntimeException("test");
                     }})
                 .handleNext("test");
+
+        assertThat("トランザクションがロールバックされているため、レコードが取得できないこと",
+                VariousDbTestHelper.findAll(TestTable.class).size(), is(0));
     }
 
     @Entity
