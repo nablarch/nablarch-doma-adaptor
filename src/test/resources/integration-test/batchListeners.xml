@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration http://tis.co.jp/nablarch/component-configuration">
+
+  <!-- StepListener-->
+  <list name="dbTest-batchlet-test.stepListeners">
+    <component class="nablarch.integration.doma.listener.DomaTransactionStepListener" />
+  </list>
+
+  <!-- StepListener-->
+  <list name="dbTest-batchlet-test-error.stepListeners">
+    <component class="nablarch.integration.doma.listener.DomaTransactionStepListener" />
+  </list>
+
+  <!-- ItemWriteListener -->
+  <list name="dbTest-chunk-test.itemWriteListeners">
+    <component class="nablarch.integration.doma.listener.DomaTransactionItemWriteListener" />
+  </list>
+
+  <!-- ItemWriteListener -->
+  <list name="dbTest-chunk-test-error.itemWriteListeners">
+    <component class="nablarch.integration.doma.listener.DomaTransactionItemWriteListener" />
+  </list>
+
+</component-configuration>

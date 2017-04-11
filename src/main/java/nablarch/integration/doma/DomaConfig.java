@@ -10,6 +10,7 @@ import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
+import org.seasar.doma.jdbc.tx.LocalTransaction;
 import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
@@ -40,6 +41,9 @@ public final class DomaConfig implements Config {
     /** ローカルトランザクションマネージャ */
     private final LocalTransactionManager localTransactionManager;
 
+    /** ローカルトランザクション */
+    private final LocalTransaction localTransaction;
+
     /**
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
@@ -54,11 +58,9 @@ public final class DomaConfig implements Config {
             throw new IllegalArgumentException("specified " + DATA_SOURCE_NAME + " is not registered in SystemRepository.");
         }
         localTransactionDataSource = new LocalTransactionDataSource(dataSource);
-
-        localTransactionManager = new LocalTransactionManager(
-                localTransactionDataSource.getLocalTransaction(new UtilLoggingJdbcLogger(Level.FINE)));
+        localTransaction = localTransactionDataSource.getLocalTransaction(new UtilLoggingJdbcLogger(Level.FINE));
+        localTransactionManager = new LocalTransactionManager(localTransaction);
     }
-
 
     @Override
     public Dialect getDialect() {
@@ -90,5 +92,11 @@ public final class DomaConfig implements Config {
         return CONFIG;
     }
 
-
+    /**
+     * ローカルトランザクションを取得する。
+     * @return ローカルトランザクション
+     */
+    public LocalTransaction getLocalTransaction() {
+        return localTransaction;
+    }
 }
