@@ -1,4 +1,4 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener.integration;
 
 import org.seasar.doma.Dao;
 import org.seasar.doma.Insert;

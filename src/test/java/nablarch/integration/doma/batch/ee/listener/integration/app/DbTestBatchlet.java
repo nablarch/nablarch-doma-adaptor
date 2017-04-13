@@ -1,10 +1,10 @@
-package nablarch.integration.doma.listener.app;
+package nablarch.integration.doma.batch.ee.listener.integration.app;
 
 import nablarch.core.log.Logger;
 import nablarch.core.log.LoggerManager;
 import nablarch.integration.doma.DomaDaoRepository;
-import nablarch.integration.doma.listener.TestDomaEntity;
-import nablarch.integration.doma.listener.TestDomaEntityDao;
+import nablarch.integration.doma.batch.ee.listener.integration.TestDomaEntity;
+import nablarch.integration.doma.batch.ee.listener.integration.TestDomaEntityDao;
 
 import javax.batch.api.AbstractBatchlet;
 import javax.batch.api.BatchProperty;
@@ -29,7 +29,6 @@ public class DbTestBatchlet extends AbstractBatchlet {
 
     @Override
     public String process() throws Exception {
-
         DomaDaoRepository.get(TestDomaEntityDao.class).insert(new TestDomaEntity("AAA"));
         if (isError.equalsIgnoreCase("true")) {
             RuntimeException e = new RuntimeException("Test Exception Message.");

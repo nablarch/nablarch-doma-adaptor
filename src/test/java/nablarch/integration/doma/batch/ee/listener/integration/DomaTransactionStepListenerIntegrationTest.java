@@ -1,5 +1,6 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener.integration;
 
+import nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener;
 import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.db.helper.VariousDbTestHelper;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
@@ -20,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * {@link DomaTransactionStepListener}のテスト
  */
 @RunWith(Arquillian.class)
-public class DomaTransactionStepListenerTest extends DomaTestSupport {
+public class DomaTransactionStepListenerIntegrationTest extends DomaTestSupport {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -28,9 +29,6 @@ public class DomaTransactionStepListenerTest extends DomaTestSupport {
                 .addPackages(true, object -> true, "nablarch");
         return archive;
     }
-
-    @ClassRule
-    public static SystemRepositoryResource RESOURCE = new SystemRepositoryResource("config.xml");
 
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("integration-test/jbatch.xml");
@@ -42,7 +40,7 @@ public class DomaTransactionStepListenerTest extends DomaTestSupport {
     }
 
     @AfterClass
-    public static void afterClass() {
+    public static void afterClass() throws Exception {
         DomaTestSupport.afterClass();
     }
 
@@ -53,7 +51,7 @@ public class DomaTransactionStepListenerTest extends DomaTestSupport {
     }
 
     /**
-     * {@link nablarch.integration.doma.listener.app.DbTestBatchlet}が正常に実行され、コミットされていること。
+     * {@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestBatchlet}が正常に実行され、コミットされていること。
      */
     @Test
     public void testBatchletSuccess() {
@@ -63,7 +61,7 @@ public class DomaTransactionStepListenerTest extends DomaTestSupport {
     }
 
     /**
-     * {@link nablarch.integration.doma.listener.app.DbTestBatchlet}が失敗し、ロールバックされていること。
+     * {@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestBatchlet}が失敗し、ロールバックされていること。
      */
     @Test
     public void testBatchletError() {

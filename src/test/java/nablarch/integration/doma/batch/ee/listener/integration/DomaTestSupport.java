@@ -1,4 +1,4 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener.integration;
 
 import nablarch.core.db.connection.AppDbConnection;
 import nablarch.core.db.connection.DbConnectionContext;
@@ -53,7 +53,8 @@ public class DomaTestSupport {
     /**
      *　テストの後処理でDBコネクションとトランザクションを削除する。
      */
-    protected static void afterClass() {
+    @SuppressWarnings("unchecked")
+    protected static void afterClass() throws Exception {
         try {
             final Field field = DbConnectionContext.class.getDeclaredField("connection");
             field.setAccessible(true);
@@ -70,9 +71,9 @@ public class DomaTestSupport {
                 TransactionContext.removeTransaction(key);
             }
         } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
+            throw e;
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 

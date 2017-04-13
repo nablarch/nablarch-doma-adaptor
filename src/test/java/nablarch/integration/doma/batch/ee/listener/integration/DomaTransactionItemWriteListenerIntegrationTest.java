@@ -1,8 +1,10 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener.integration;
 
 import mockit.Expectations;
 import mockit.Mocked;
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
+import nablarch.integration.doma.batch.ee.listener.DomaTransactionItemWriteListener;
+import nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener;
 import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.db.helper.VariousDbTestHelper;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
@@ -23,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * {@link DomaTransactionStepListener}のテスト
  */
 @RunWith(Arquillian.class)
-public class DomaTransactionItemWriteListenerTest extends DomaTestSupport {
+public class DomaTransactionItemWriteListenerIntegrationTest extends DomaTestSupport {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -31,9 +33,6 @@ public class DomaTransactionItemWriteListenerTest extends DomaTestSupport {
                 .addPackages(true, object -> true, "nablarch");
         return archive;
     }
-
-    @ClassRule
-    public static SystemRepositoryResource RESOURCE = new SystemRepositoryResource("config.xml");
 
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("integration-test/jbatch.xml");
@@ -45,18 +44,17 @@ public class DomaTransactionItemWriteListenerTest extends DomaTestSupport {
     }
 
     @AfterClass
-    public static void afterClass() {
+    public static void afterClass() throws Exception {
         DomaTestSupport.afterClass();
     }
 
     @Before
     public void setUp() throws Exception {
-        OnMemoryLogWriter.clear();
         VariousDbTestHelper.delete(TestEntity.class);
     }
 
     /**
-     * {@link nablarch.integration.doma.listener.app.DbTestItemReader}と{@link nablarch.integration.doma.listener.app.DbTestItemWriter}が
+     * {@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestItemReader}と{@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestItemWriter}が
      * 正常に実行され、コミットされていること。
      */
     @Test
@@ -72,7 +70,7 @@ public class DomaTransactionItemWriteListenerTest extends DomaTestSupport {
     }
 
     /**
-     * {@link nablarch.integration.doma.listener.app.DbTestItemReader}と{@link nablarch.integration.doma.listener.app.DbTestItemWriter}が
+     * {@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestItemReader}と{@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestItemWriter}が
      * 正常に実行されるが、{@link DomaTransactionItemWriteListener}の処理結果が<code>false</code>のため、ロールバックされていること。
      */
     @Test
@@ -88,7 +86,7 @@ public class DomaTransactionItemWriteListenerTest extends DomaTestSupport {
     }
 
     /**
-     * {@link nablarch.integration.doma.listener.app.DbTestItemReader}と{@link nablarch.integration.doma.listener.app.DbTestItemWriter}が失敗し、
+     * {@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestItemReader}と{@link nablarch.integration.doma.batch.ee.listener.integration.app.DbTestItemWriter}が失敗し、
      * ロールバックされていること。
      */
     @Test

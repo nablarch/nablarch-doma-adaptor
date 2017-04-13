@@ -1,6 +1,6 @@
-package nablarch.integration.doma.listener.app;
+package nablarch.integration.doma.batch.ee.listener.integration.app;
 
-import nablarch.integration.doma.listener.TestDomaEntity;
+import nablarch.integration.doma.batch.ee.listener.integration.TestDomaEntity;
 
 import javax.batch.api.chunk.AbstractItemReader;
 import javax.enterprise.context.Dependent;

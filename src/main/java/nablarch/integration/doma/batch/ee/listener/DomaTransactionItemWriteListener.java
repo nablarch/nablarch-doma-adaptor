@@ -1,4 +1,4 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener;
 
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.fw.batch.ee.listener.chunk.AbstractNablarchItemWriteListener;
@@ -10,8 +10,12 @@ import java.util.List;
 
 /**
  * {@link javax.batch.api.chunk.listener.ItemWriteListener}レベルでDomaのトランザクション制御を行う{@link NablarchItemWriteListener}の実装クラス。
- * <p/>
+ * <p>
+ * 前段に配置した{@link DomaTransactionStepListener}からDomaの{@link LocalTransaction}を取得し、トランザクション制御を行う。
+ * <p>
  * {@link javax.batch.api.chunk.ItemWriter}が正常に終了した場合には、トランザクションの確定({@link LocalTransaction#commit()})を実行し、
+ * その後に{@link LocalTransaction}を開始({@link LocalTransaction#begin()})する。
+ * <br>
  * {@link javax.batch.api.chunk.ItemWriter}で{@link Exception}が発生した場合には、トランザクションの破棄({@link LocalTransaction#rollback()}を行う。
  *
  * @author d-maeno
@@ -19,16 +23,15 @@ import java.util.List;
 public class DomaTransactionItemWriteListener extends AbstractNablarchItemWriteListener {
 
     @Override
-    public void beforeWrite(final NablarchListenerContext context, final List<Object> items) {
-        DomaConfig.singleton().getLocalTransaction().begin();
-    }
-
-    @Override
     public void afterWrite(final NablarchListenerContext context, final List<Object> items) {
-        if (context.isProcessSucceeded()) {
-            DomaConfig.singleton().getLocalTransaction().commit();
-        } else {
-            DomaConfig.singleton().getLocalTransaction().rollback();
+        LocalTransaction localTransaction = DomaConfig.singleton().getLocalTransaction();
+        try {
+            if (context.isProcessSucceeded()) {
+                localTransaction.commit();
+            }
+        } finally {
+            localTransaction.rollback();
+            localTransaction.begin();
         }
     }
 

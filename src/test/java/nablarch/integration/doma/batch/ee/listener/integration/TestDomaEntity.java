@@ -1,4 +1,4 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener.integration;
 
 @org.seasar.doma.Entity
 @org.seasar.doma.Table(name = "TEST_ENTITY")

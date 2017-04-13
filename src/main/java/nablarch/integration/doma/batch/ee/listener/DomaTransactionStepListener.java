@@ -1,4 +1,4 @@
-package nablarch.integration.doma.listener;
+package nablarch.integration.doma.batch.ee.listener;
 
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.fw.batch.ee.listener.step.AbstractNablarchStepListener;
@@ -8,7 +8,7 @@ import org.seasar.doma.jdbc.tx.LocalTransaction;
 
 /**
  * ステップレベルで、Domaのトランザクション制御を行う{@link NablarchStepListener}の実装クラス。
- * <p/>
+ * <p>
  * ステップ開始時にトランザクションを開始し、ステップ終了時に正常終了していれば{@link LocalTransaction#commit()}、
  * そうでなければ、{@link LocalTransaction#rollback()}を呼び出す。
  *
@@ -18,15 +18,18 @@ public class DomaTransactionStepListener extends AbstractNablarchStepListener {
 
     @Override
     public void beforeStep(final NablarchListenerContext context) {
-         DomaConfig.singleton().getLocalTransaction().begin();
+        DomaConfig.singleton().getLocalTransaction().begin();
     }
 
     @Override
     public void afterStep(final NablarchListenerContext context) {
-        if (context.isStepProcessSucceeded()) {
-            DomaConfig.singleton().getLocalTransaction().commit();
-        } else {
-            DomaConfig.singleton().getLocalTransaction().rollback();
+        LocalTransaction localTransaction = DomaConfig.singleton().getLocalTransaction();
+        try {
+            if (context.isStepProcessSucceeded()) {
+                localTransaction.commit();
+            }
+        } finally {
+            localTransaction.rollback();
         }
     }
 }
