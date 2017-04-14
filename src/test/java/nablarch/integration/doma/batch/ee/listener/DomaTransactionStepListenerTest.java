@@ -17,14 +17,13 @@ import org.seasar.doma.jdbc.tx.LocalTransaction;
 public class DomaTransactionStepListenerTest {
 
     /** テスト対象となるリスナークラス */
-    private final DomaTransactionStepListener domaTransactionStepListener = new DomaTransactionStepListener();
+    private DomaTransactionStepListener sut = new DomaTransactionStepListener();
 
     @Mocked
     private NablarchListenerContext mockContext;
 
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("config.xml");
-
 
     /** Domaの設定ファイル */
     private DomaConfig domaConfig;
@@ -48,7 +47,7 @@ public class DomaTransactionStepListenerTest {
             result = mockLocalTransaction;
         }};
 
-        domaTransactionStepListener.beforeStep(mockContext);
+        sut.beforeStep(mockContext);
 
         new Verifications() {{
             mockLocalTransaction.begin();
@@ -70,7 +69,7 @@ public class DomaTransactionStepListenerTest {
             result = true;
         }};
 
-        domaTransactionStepListener.afterStep(mockContext);
+        sut.afterStep(mockContext);
 
         new Verifications() {{
             mockLocalTransaction.commit();
@@ -92,7 +91,7 @@ public class DomaTransactionStepListenerTest {
             result = false;
         }};
 
-        domaTransactionStepListener.afterStep(mockContext);
+        sut.afterStep(mockContext);
 
         new Verifications() {{
             mockLocalTransaction.rollback();

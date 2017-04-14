@@ -19,10 +19,8 @@ import java.util.List;
  */
 public class DomaTransactionItemWriteListenerTest {
 
-    /**
-     * テスト対象となるリスナークラス
-     */
-    private DomaTransactionItemWriteListener domaTransactionItemWriteListener = new DomaTransactionItemWriteListener();
+    /** テスト対象となるリスナークラス */
+    private DomaTransactionItemWriteListener sut = new DomaTransactionItemWriteListener();
 
     @Mocked
     private NablarchListenerContext mockContext;
@@ -30,9 +28,7 @@ public class DomaTransactionItemWriteListenerTest {
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("config.xml");
 
-    /**
-     * Domaの設定ファイル
-     */
+    /**  Domaの設定ファイル */
     private DomaConfig domaConfig;
 
     @Mocked
@@ -57,7 +53,7 @@ public class DomaTransactionItemWriteListenerTest {
             result = true;
         }};
 
-        domaTransactionItemWriteListener.afterWrite(mockContext, Collections.emptyList());
+        sut.afterWrite(mockContext, Collections.emptyList());
 
         new Verifications() {{
             mockLocalTransaction.commit();
@@ -82,7 +78,7 @@ public class DomaTransactionItemWriteListenerTest {
             result = false;
         }};
 
-        domaTransactionItemWriteListener.afterWrite(mockContext, Collections.emptyList());
+        sut.afterWrite(mockContext, Collections.emptyList());
 
         new Verifications() {{
             mockLocalTransaction.rollback();
@@ -102,7 +98,7 @@ public class DomaTransactionItemWriteListenerTest {
             result = mockLocalTransaction;
         }};
 
-        domaTransactionItemWriteListener.onWriteError(mockContext, Collections.EMPTY_LIST, new Exception());
+        sut.onWriteError(mockContext, Collections.EMPTY_LIST, new Exception());
 
         new Verifications() {{
             mockLocalTransaction.rollback();
