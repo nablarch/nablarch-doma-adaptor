@@ -39,6 +39,7 @@ dependencies {
   testCompile 'org.jmockit:jmockit:1.30'
   testCompile 'junit:junit:4.12'
   testCompile 'com.h2database:h2:1.4.194'
+  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.7'
 
   testRuntime "com.nablarch.framework:nablarch-core-applog:${nablarchCoreApplogVersion}"
   testRuntime "com.nablarch.framework:nablarch-core-jdbc:${nablarchCoreJdbcVersion}"
