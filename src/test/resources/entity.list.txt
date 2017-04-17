@@ -1,1 +1,2 @@
 nablarch.integration.doma.TransactionalTest$TestTable
+nablarch.integration.doma.batch.ee.listener.integration.DomaTestSupport$TestEntity
