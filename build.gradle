@@ -1,5 +1,5 @@
 group = 'com.nablarch.integration'
-version = '0.0.1'
+version = '0.0.2'
 description = 'DomaによるDBアクセス機能の拡張実装'
 
 repositories {
