@@ -77,3 +77,4 @@ hs_err_pid*
 generated/
 generated_tests/
 
+*.log

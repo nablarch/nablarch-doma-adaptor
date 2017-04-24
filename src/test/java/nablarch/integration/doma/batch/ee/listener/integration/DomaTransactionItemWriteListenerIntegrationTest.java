@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * {@link DomaTransactionStepListener}のテスト
  */
 @RunWith(Arquillian.class)
+@Ignore
 public class DomaTransactionItemWriteListenerIntegrationTest extends DomaTestSupport {
 
     @Deployment
