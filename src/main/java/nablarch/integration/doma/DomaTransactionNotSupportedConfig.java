@@ -28,12 +28,6 @@ public final class DomaTransactionNotSupportedConfig implements Config {
     /** シングルトンインスタンス */
     private static final DomaTransactionNotSupportedConfig CONFIG = new DomaTransactionNotSupportedConfig();
 
-    /** {@link SystemRepository}に定義されているDomaのダイアレクト名 */
-    private static final String DIALECT_NAME = "domaDialect";
-
-    /** {@link SystemRepository}に定義されているデータソース名 */
-    private static final String DATA_SOURCE_NAME = "dataSource";
-
     /** ダイアレクト */
     private final Dialect dialect;
 
