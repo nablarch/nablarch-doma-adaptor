@@ -1,4 +1,4 @@
-<job id="dbTest-batchlet-test-error" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+<job id="db2db-chunk" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
   <listeners>
     <listener ref="nablarchJobListenerExecutor">
       <properties>
@@ -6,15 +6,12 @@
       </properties>
     </listener>
   </listeners>
-
-  <step id="step1">
+  
+  <step id="myStep">
     <listeners>
       <listener ref="nablarchStepListenerExecutor" />
+      <listener ref="nablarchItemWriteListenerExecutor" />
     </listeners>
-    <batchlet ref="dbTestBatchlet">
-        <properties>
-          <property name="isError" value="true"/>
-        </properties>
-    </batchlet>
+    <batchlet ref="db2DbBatchlet" />
   </step>
 </job>

@@ -23,7 +23,7 @@ public class DomaTransactionStepListener extends AbstractNablarchStepListener {
 
     @Override
     public void afterStep(final NablarchListenerContext context) {
-        LocalTransaction localTransaction = DomaConfig.singleton().getLocalTransaction();
+        final LocalTransaction localTransaction = DomaConfig.singleton().getLocalTransaction();
         try {
             if (context.isStepProcessSucceeded()) {
                 localTransaction.commit();
