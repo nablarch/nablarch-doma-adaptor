@@ -1,18 +1,21 @@
 package nablarch.integration.doma;
 
 import java.util.logging.Level;
+
 import javax.sql.DataSource;
 
-import nablarch.core.repository.SystemRepository;
-import nablarch.core.util.annotation.Published;
 import org.seasar.doma.SingletonConfig;
 import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
+import org.seasar.doma.jdbc.tx.LocalTransaction;
 import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
+
+import nablarch.core.util.annotation.Published;
 
 /**
  * Domaを使用してデータベースアクセスを行うための設定を保持するクラス。
@@ -25,12 +28,6 @@ public final class DomaConfig implements Config {
     /** シングルトンインスタンス */
     private static final DomaConfig CONFIG = new DomaConfig();
 
-    /** {@link SystemRepository}に定義されているDomaのダイアレクト名 */
-    private static final String DIALECT_NAME = "domaDialect";
-
-    /** {@link SystemRepository}に定義されているデータソース名 */
-    private static final String DATA_SOURCE_NAME = "dataSource";
-
     /** ダイアレクト */
     private final Dialect dialect;
 
@@ -40,25 +37,24 @@ public final class DomaConfig implements Config {
     /** ローカルトランザクションマネージャ */
     private final LocalTransactionManager localTransactionManager;
 
+    /** ローカルトランザクション */
+    private final LocalTransaction localTransaction;
+
     /**
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
     private DomaConfig() {
-        dialect = SystemRepository.get(DIALECT_NAME);
-        if (dialect == null) {
-            throw new IllegalArgumentException("specified "+ DIALECT_NAME +" is not registered in SystemRepository.");
-        }
-
-        final DataSource dataSource = SystemRepository.get(DATA_SOURCE_NAME);
-        if (dataSource == null) {
-            throw new IllegalArgumentException("specified " + DATA_SOURCE_NAME + " is not registered in SystemRepository.");
-        }
-        localTransactionDataSource = new LocalTransactionDataSource(dataSource);
-
-        localTransactionManager = new LocalTransactionManager(
-                localTransactionDataSource.getLocalTransaction(new UtilLoggingJdbcLogger(Level.FINE)));
+        final ConfigHolder holder = new ConfigHolder();
+        dialect = holder.getDialect();
+        localTransactionDataSource = new LocalTransactionDataSource(holder.getDataSource());
+        localTransaction = localTransactionDataSource.getLocalTransaction(getJdbcLogger());
+        localTransactionManager = new LocalTransactionManager(localTransaction);
     }
 
+    @Override
+    public JdbcLogger getJdbcLogger() {
+        return new UtilLoggingJdbcLogger(Level.FINE);
+    }
 
     @Override
     public Dialect getDialect() {
@@ -90,5 +86,11 @@ public final class DomaConfig implements Config {
         return CONFIG;
     }
 
-
+    /**
+     * ローカルトランザクションを取得する。
+     * @return ローカルトランザクション
+     */
+    public LocalTransaction getLocalTransaction() {
+        return localTransaction;
+    }
 }
