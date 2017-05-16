@@ -37,6 +37,9 @@ public class DomaTransactionItemWriteListener extends AbstractNablarchItemWriteL
 
     @Override
     public void onWriteError(final NablarchListenerContext context, final List<Object> items, final Exception ex) {
-        DomaConfig.singleton().getLocalTransaction().rollback();
+        final LocalTransaction transaction = DomaConfig.singleton()
+                                                       .getLocalTransaction();
+        transaction.rollback();
+        transaction.begin();
     }
 }
