@@ -60,9 +60,14 @@ class IntegrationTestResource : ExternalResource() {
         }
     }
 
-    fun executeBatch(jobId: String, properties: Properties = Properties()): JobExecution {
+    fun executeBatch(jobId: String, properties: Properties = Properties(), restart: Boolean = false, restartTarget:Long? = null): JobExecution {
         val jobOperator = BatchRuntime.getJobOperator()
-        val executionId = jobOperator.start(jobId, properties)
+        
+        val executionId = if (restart) {
+            jobOperator.restart(restartTarget!!, properties)
+        } else {
+            jobOperator.start(jobId, properties)
+        }
         val jobExecution = jobOperator.getJobExecution(executionId)
         while (true) {
             if (jobExecution.endTime != null) {

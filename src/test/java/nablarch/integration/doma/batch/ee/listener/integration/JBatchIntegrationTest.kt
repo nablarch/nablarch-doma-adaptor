@@ -8,11 +8,15 @@ import org.jboss.shrinkwrap.api.spec.*
 import org.junit.*
 import org.junit.runner.*
 import java.util.*
-import java.util.concurrent.*
 import javax.batch.runtime.*
 
 /**
  * JSR352配下でのテスト。
+ * 
+ * このテストは、他のテストとは異なる接続先に対してテストを行うので、
+ * IDEの機能などで他のクラスと同時にテストを実行することは出来ない。
+ * 
+ * 本モジュールのテストを一括実行したい場合は、Gradleタスクを使用して行うこと。
  */
 @RunWith(Arquillian::class)
 class JBatchIntegrationTest {
@@ -130,7 +134,7 @@ class JBatchIntegrationTest {
 
     /**
      * db insertでWriterで例外が派生するケース
-     * 
+     *
      * * 処理済みのChunkまでのデータは処理されていること
      * * 処理は異常終了すること
      */
@@ -147,5 +151,106 @@ class JBatchIntegrationTest {
         assertThat(integrationTestResource.findOutputTable())
             .`as`("item-countが50で60件目で例外発生なので50レコードは登録されているはず")
             .isEqualTo((1..50).toList())
+    }
+
+    /**
+     * スキップ対象の例外が発生するケース
+     *
+     * * スキップ対象の例外が発生したChunkのデータは登録されていないこと
+     * * 処理は正常終了すること
+     */
+    @Test
+    fun chunk_skipError() {
+        val properties = Properties()
+        properties.put("error-point", "61")     // 61のデータでエラー
+        properties.put("item-count", "50")       // item-countは50
+        val jobExecution = integrationTestResource.executeBatch("skip-error", properties)
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        assertThat(integrationTestResource.findOutputTable())
+            .`as`("61のデータがエラーでスキップされるのでそれ以外が登録されていること")
+            .isEqualTo((1..60) + (62..111))
+    }
+
+    /**
+     * リトライ対象の例外が発生するケース
+     *
+     * * リトライが実行され処理が正常終了すること
+     */
+    @Test
+    fun chunk_retryError() {
+        val properties = Properties()
+        properties.put("item-count", "50")       // item-countは50
+        val jobExecution = integrationTestResource.executeBatch("retry-error", properties)
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        assertThat(integrationTestResource.findOutputTable())
+            .`as`("リトライされるので全データ登録されていること")
+            .isEqualTo((1..111).toList())
+    }
+
+    /**
+     * 複数のStepからなるジョブのテスト。
+     */
+    @Test
+    fun multiStepJob() {
+        val jobExecution = integrationTestResource.executeBatch("multi-step", Properties())
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        assertThat(integrationTestResource.findOutputTable())
+            .`as`("batchletで×10した値がChunkでoutputテーブルに書き込まれること")
+            .isEqualTo((1..111).map { it * 10 }.toList())
+    }
+
+    /**
+     トランザクション制御の後ろのリスナの戻り処理で例外が発生するケース。
+     
+     afterの処理は後ろのリスナから実行されるので、処理が全てロールバックされること。
+     */
+    @Test
+    fun listenerError() {
+        integrationTestResource.insertOutputTable(listOf(200))
+        val jobExecution = integrationTestResource.executeBatch("listener-error", Properties())
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.FAILED)
+        
+        assertThat(integrationTestResource.findOutputTable())
+            .`as`("output tableはロールバックされ元のレコードのみとなること")
+            .isEqualTo(listOf(200))
+    }
+
+    @Test
+    fun restart() {
+        val properties = Properties()
+        properties.put("item-count", "30")
+        properties.put("error-position", "40")      // 値が40の場合リーダで例外が送出される
+        val jobExecution = integrationTestResource.executeBatch("restart", properties)
+        val executionId = jobExecution.executionId
+        
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.FAILED)
+        
+        assertThat(integrationTestResource.findOutputTable())
+            .`as`("最初のチャンクの30レコードだけ登録されている")
+            .isEqualTo((1..30).toList())
+
+        // エラーを発生させないようにする
+        properties.put("error-position", "-1")
+        val restartJobExecution = integrationTestResource.executeBatch("restart", properties, true, executionId)
+        
+        assertThat(restartJobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        assertThat(integrationTestResource.findOutputTable())
+            .`as`("リスタートされて最終的に全レコードアウトプットテーブルに登録される")
+            .isEqualTo((1..111).toList())
+        
     }
 }

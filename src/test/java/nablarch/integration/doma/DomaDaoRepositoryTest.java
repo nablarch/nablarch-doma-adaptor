@@ -1,9 +1,11 @@
 package nablarch.integration.doma;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 
+import nablarch.test.support.SystemRepositoryResource;
+
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -12,6 +14,9 @@ import org.junit.rules.ExpectedException;
  * {@link DomaDaoRepository}のテストクラス。
  */
 public class DomaDaoRepositoryTest {
+    
+    @ClassRule
+    public static SystemRepositoryResource systemRepositoryResource = new SystemRepositoryResource("config.xml");
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
