@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import javax.sql.DataSource;
 
-import org.h2.jdbcx.JdbcDataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
@@ -53,7 +53,7 @@ public class DomaTransactionNotSupportedConfigTest {
         DataSource dataSource = DomaTransactionNotSupportedConfig.singleton()
                                                                  .getDataSource();
         assertThat(dataSource)
-                  .isInstanceOf(JdbcDataSource.class);
+                  .isInstanceOf(BasicDataSource.class);
     }
 
     /**

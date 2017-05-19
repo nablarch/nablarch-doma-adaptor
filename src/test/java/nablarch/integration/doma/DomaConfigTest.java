@@ -1,23 +1,25 @@
 package nablarch.integration.doma;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import javax.sql.DataSource;
 
-import mockit.Deencapsulation;
-import nablarch.test.support.SystemRepositoryResource;
-import org.h2.jdbcx.JdbcDataSource;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
 import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
+
+import nablarch.test.support.SystemRepositoryResource;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import mockit.Deencapsulation;
 
 /**
  * {@link DomaConfig}のテストクラス。
@@ -48,7 +50,7 @@ public class DomaConfigTest {
     public void getDataSource() throws Exception {
         DataSource dataSource = DomaConfig.singleton().getDataSource();
         assertThat(dataSource, instanceOf(LocalTransactionDataSource.class));
-        assertThat(Deencapsulation.getField(dataSource, "dataSource"), instanceOf(JdbcDataSource.class));
+        assertThat(Deencapsulation.getField(dataSource, "dataSource"), instanceOf(BasicDataSource.class));
     }
 
     /**

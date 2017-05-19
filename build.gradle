@@ -9,7 +9,7 @@ repositories {
 }
 
 buildscript {
-  ext.kotlin_version = '1.1.1'
+  ext.kotlin_version = '1.1.2'
   repositories {
     mavenLocal()
     maven { url "${developLibUrl}" }
@@ -32,8 +32,8 @@ apply {
 }
 
 // ビルド時のJavaバージョンを指定する
-sourceCompatibility=JavaVersion.VERSION_1_8
-targetCompatibility=JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
   provided 'javax.batch:javax.batch-api:1.0'
@@ -61,7 +61,28 @@ dependencies {
 
 test {
   ignoreFailures = true
+  exclude '**/JBatchIntegration*'
+  reports.html.enabled = false
 }
+
+task integrationTest(type: Test) {
+  group = JavaBasePlugin.VERIFICATION_GROUP
+  
+  mustRunAfter test
+  include '**/JBatchIntegration*'
+  
+  reports.html.enabled = false
+}
+
+
+task testReport(type: TestReport) {
+  destinationDir = file("$buildDir/reports/tests")
+  reportOn(test, integrationTest)
+}
+
+test.finalizedBy integrationTest
+integrationTest.finalizedBy testReport
+
 
 wrapper {
   gradleVersion = '2.13'
