@@ -1,5 +1,5 @@
 group = 'com.nablarch.integration'
-version = '0.0.2'
+version = '0.0.3'
 description = 'DomaによるDBアクセス機能の拡張実装'
 
 repositories {
@@ -39,7 +39,7 @@ dependencies {
   provided 'javax.batch:javax.batch-api:1.0'
   provided 'javax.inject:javax.inject:1'
   provided 'javax.enterprise:cdi-api:1.1'
-  provided 'org.seasar.doma:doma:2.16.0'
+  compile 'org.seasar.doma:doma:2.16.0'
   provided "com.nablarch.framework:nablarch-fw-batch-ee:${nablarchFwBatchEeVersion}"
 
   compile "com.nablarch.framework:nablarch-core-repository:${nablarchCoreRepositoryVersion}"
