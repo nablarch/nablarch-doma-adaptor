@@ -48,7 +48,6 @@ dependencies {
   testCompile 'junit:junit:4.12'
   testCompile 'org.assertj:assertj-core:3.6.2'
   testCompile 'com.h2database:h2:1.4.194'
-  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.7'
 
   testCompile 'org.glassfish.main.extras:glassfish-embedded-all:4.1'
   testCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.0.0.Final'
