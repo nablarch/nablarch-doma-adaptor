@@ -1,15 +1,18 @@
 package nablarch.integration.doma.batch.ee.listener;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import org.seasar.doma.jdbc.tx.LocalTransaction;
+
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.integration.doma.DomaConfig;
 import nablarch.test.support.SystemRepositoryResource;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.seasar.doma.jdbc.tx.LocalTransaction;
+
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.Verifications;
 
 /**
  * {@link DomaTransactionStepListener}のテストクラス
@@ -28,9 +31,6 @@ public class DomaTransactionStepListenerTest {
     /** Domaの設定ファイル */
     private DomaConfig domaConfig;
 
-    @Mocked
-    private LocalTransaction mockLocalTransaction;
-
     @Before
     public void setUp() {
         domaConfig = DomaConfig.singleton();
@@ -41,7 +41,7 @@ public class DomaTransactionStepListenerTest {
      * Domaのトランザクションが正常に開始されていること。
      */
     @Test
-    public void testBeforeStep() {
+    public void testBeforeStep(@Mocked LocalTransaction mockLocalTransaction) {
         new Expectations() {{
             domaConfig.getLocalTransaction();
             result = mockLocalTransaction;
@@ -60,7 +60,7 @@ public class DomaTransactionStepListenerTest {
      * Domaのトランザクションがcommitされること。
      */
     @Test
-    public void testAfterStepNormal() {
+    public void testAfterStepNormal(@Mocked LocalTransaction mockLocalTransaction) {
         new Expectations() {{
             domaConfig.getLocalTransaction();
             result = mockLocalTransaction;
@@ -82,7 +82,7 @@ public class DomaTransactionStepListenerTest {
      * Domaのトランザクションがrollbackされること。
      */
     @Test
-    public void testAfterStepFailed() {
+    public void testAfterStepFailed(@Mocked LocalTransaction mockLocalTransaction) {
         new Expectations() {{
             domaConfig.getLocalTransaction();
             result = mockLocalTransaction;

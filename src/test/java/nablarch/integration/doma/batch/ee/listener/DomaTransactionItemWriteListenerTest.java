@@ -1,18 +1,21 @@
 package nablarch.integration.doma.batch.ee.listener;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import java.util.Collections;
+import java.util.List;
+
+import org.seasar.doma.jdbc.tx.LocalTransaction;
+
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.integration.doma.DomaConfig;
 import nablarch.test.support.SystemRepositoryResource;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.seasar.doma.jdbc.tx.LocalTransaction;
 
-import java.util.Collections;
-import java.util.List;
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.Verifications;
 
 /**
  * {@link DomaTransactionItemWriteListener}のテストクラス
@@ -31,9 +34,6 @@ public class DomaTransactionItemWriteListenerTest {
     /**  Domaの設定ファイル */
     private DomaConfig domaConfig;
 
-    @Mocked
-    private LocalTransaction mockLocalTransaction;
-
     @Before
     public void setUp() {
         domaConfig = DomaConfig.singleton();
@@ -44,7 +44,7 @@ public class DomaTransactionItemWriteListenerTest {
      * Domaのトランザクションが正常にコミットされ、その後開始されていること。
      */
     @Test
-    public void testAfterWriteNormal() {
+    public void testAfterWriteNormal(@Mocked LocalTransaction mockLocalTransaction) {
         new Expectations() {{
             domaConfig.getLocalTransaction();
             result = mockLocalTransaction;
@@ -69,7 +69,7 @@ public class DomaTransactionItemWriteListenerTest {
      * Domaのトランザクションがロールバックされていること。
      */
     @Test
-    public void testAfterWriteFailed() {
+    public void testAfterWriteFailed(@Mocked final LocalTransaction mockLocalTransaction) {
         new Expectations() {{
             domaConfig.getLocalTransaction();
             result = mockLocalTransaction;
@@ -92,7 +92,7 @@ public class DomaTransactionItemWriteListenerTest {
      */
     @Test
     @SuppressWarnings("unchecked")
-    public void testOnWriteError() {
+    public void testOnWriteError(@Mocked final LocalTransaction mockLocalTransaction) {
         new Expectations() {{
             domaConfig.getLocalTransaction();
             result = mockLocalTransaction;
