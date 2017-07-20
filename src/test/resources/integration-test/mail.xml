@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration component-configuration.xsd">
+
+  <component class="nablarch.common.mail.MailRequester" name="mailRequester">
+    <property name="mailRequestIdGenerator">
+      <component class="nablarch.common.idgenerator.SequenceIdGenerator" />
+    </property>
+
+    <property name="mailRequestConfig">
+      <component class="nablarch.common.mail.MailRequestConfig">
+        <property name="defaultCharset" value="utf-8" />
+        <property name="defaultReplyTo" value="replyto@hoge.com" />
+        <property name="defaultReturnPath" value="return@hoge.com" />
+      </component>
+    </property>
+
+    <property name="mailConfig">
+      <component class="nablarch.common.mail.MailConfig">
+        <property name="mailRequestSbnId" value="mail_id" />
+      </component>
+    </property>
+
+    <property name="mailRequestTable" ref="mailRequest" />
+    <property name="mailRecipientTable" ref="mailRecipient" />
+    <property name="mailAttachedFileTable" ref="mailFile" />
+  </component>
+  
+  <component class="nablarch.common.mail.MailRequestTable" name="mailRequest">
+    <property name="tableName" value="mail_request" />
+    <property name="mailRequestIdColumnName" value="id" />
+    <property name="subjectColumnName" value="subject" />
+    <property name="fromColumnName" value="from_address" />
+    <property name="replyToColumnName" value="reply" />
+    <property name="returnPathColumnName" value="return" />
+    <property name="mailBodyColumnName" value="body" />
+    <property name="charsetColumnName" value="charset" />
+    <property name="statusColumnName" value="status" />
+    <property name="requestDateTimeColumnName" value="request_dt" />
+    <property name="sendDateTimeColumnName" value="send_dt" />
+  </component>
+  
+  <component class="nablarch.common.mail.MailRecipientTable" name="mailRecipient">
+    <property name="tableName" value="mail_recipient" />
+    <property name="mailRequestIdColumnName" value="id" />
+    <property name="serialNumberColumnName" value="no" />
+    <property name="mailAddressColumnName" value="mail_address" />
+    <property name="recipientTypeColumnName" value="type" />
+  </component>
+  
+  <component class="nablarch.common.mail.MailAttachedFileTable" name="mailFile">
+    <property name="tableName" value="mail_file" />
+    <property name="mailRequestIdColumnName" value="id" />
+    <property name="serialNumberColumnName" value="no" />
+    <property name="contentTypeColumnName" value="content_type" />
+    <property name="fileNameColumnName" value="name" />
+    <property name="fileColumnName" value="file" />
+  </component>
+
+  <component class="nablarch.core.date.BasicSystemTimeProvider" name="systemTimeProvider" />
+
+</component-configuration>

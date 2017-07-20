@@ -1,10 +1,14 @@
 package nablarch.integration.doma.batch.ee.listener;
 
+import org.seasar.doma.jdbc.tx.LocalTransaction;
+
+import nablarch.core.db.connection.DbConnectionContext;
+import nablarch.core.transaction.TransactionContext;
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.fw.batch.ee.listener.step.AbstractNablarchStepListener;
 import nablarch.fw.batch.ee.listener.step.NablarchStepListener;
+import nablarch.integration.doma.ConnectionFactoryFromDomaConnection;
 import nablarch.integration.doma.DomaConfig;
-import org.seasar.doma.jdbc.tx.LocalTransaction;
 
 /**
  * ステップレベルで、Domaのトランザクション制御を行う{@link NablarchStepListener}の実装クラス。
@@ -16,9 +20,19 @@ import org.seasar.doma.jdbc.tx.LocalTransaction;
  */
 public class DomaTransactionStepListener extends AbstractNablarchStepListener {
 
+    /**
+     * コネクションファクトリ
+     */
+    private ConnectionFactoryFromDomaConnection connectionFactory;
+
     @Override
     public void beforeStep(final NablarchListenerContext context) {
         DomaConfig.singleton().getLocalTransaction().begin();
+
+        if (connectionFactory != null) {
+            DbConnectionContext.setConnection(
+                    connectionFactory.getConnection(TransactionContext.DEFAULT_TRANSACTION_CONTEXT_KEY));
+        }
     }
 
     @Override
@@ -29,7 +43,20 @@ public class DomaTransactionStepListener extends AbstractNablarchStepListener {
                 localTransaction.commit();
             }
         } finally {
-            localTransaction.rollback();
+            try {
+                localTransaction.rollback();
+            } finally {
+                DbConnectionContext.removeConnection();
+            }
         }
+    }
+
+    /**
+     * コネクションファクトリを設定する。
+     *
+     * @param connectionFactory コネクションファクトリ
+     */
+    public void setConnectionFactory(final ConnectionFactoryFromDomaConnection connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 }

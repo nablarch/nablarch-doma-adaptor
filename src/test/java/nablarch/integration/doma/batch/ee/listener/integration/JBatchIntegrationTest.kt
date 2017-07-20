@@ -7,6 +7,7 @@ import org.jboss.shrinkwrap.api.*
 import org.jboss.shrinkwrap.api.spec.*
 import org.junit.*
 import org.junit.runner.*
+import java.sql.*
 import java.util.*
 import javax.batch.runtime.*
 
@@ -251,6 +252,130 @@ class JBatchIntegrationTest {
         assertThat(integrationTestResource.findOutputTable())
             .`as`("リスタートされて最終的に全レコードアウトプットテーブルに登録される")
             .isEqualTo((1..111).toList())
-        
+
+    }
+
+    /**
+     * nablarchのデータベースアクセスがbatchletで問題なく使えることを検証する。
+     */
+    @Test
+    fun nablarch_integration_batchlet() {
+        val properties = Properties()
+        properties.put("errorMode", "false")
+        val jobExecution = integrationTestResource.executeBatch("nablarch-integration", properties)
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        // assert output table
+        assertThat(integrationTestResource.findOutputTable())
+            .isEqualTo((1..2).toList())
+
+        // assert mail
+        assertThat(findMailRequest())
+            .hasSize(1)
+            .first()
+            .extracting("subject", "body")
+            .contains("title", "本文")
+
+        assertThat(findMailRecipient())
+            .hasSize(1)
+            .first()
+            .extracting("type", "mail_address")
+            .contains("1", "to@to.com")
+    }
+    
+    /**
+     * nablarchのデータベースアクセスがbatchletで使え、ロールバックした場合はdomaとセットでロールバックされること
+     */
+    @Test
+    fun nablarch_integration_batchlet_rollback() {
+        val properties = Properties()
+        properties.put("errorMode", "true")
+        val jobExecution = integrationTestResource.executeBatch("nablarch-integration", properties)
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.FAILED)
+
+        // assert output table
+        assertThat(integrationTestResource.findOutputTable())
+            .isEmpty()
+
+        // assert mail
+        assertThat(findMailRequest())
+            .isEmpty()
+
+        assertThat(findMailRecipient())
+            .isEmpty()
+    }
+
+    /**
+     * nablarchのデータベースアクセスがchunckで問題なく使えることを検証する。
+     */
+    @Test
+    fun nablarch_integration_chunk() {
+        val jobExecution = integrationTestResource.executeBatch("nablarch-integration-chunk")
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        // assert output table
+        assertThat(integrationTestResource.findOutputTable())
+            .isEqualTo((1..111).toList())
+
+        // mail
+        assertThat(findMailRequest())
+            .hasSize(111)
+    }
+
+    /**
+     * nablarchのデータベースアクセスがchunckで使え、ロールバックした場合はdomaとセットでロールバックされること
+     */
+    @Test
+    fun nablarch_integration_chunk_rollback() {
+        val properties = Properties()
+        properties.put("errorMode", "true")
+        val jobExecution = integrationTestResource.executeBatch("nablarch-integration-chunk", properties)
+
+        assertThat(jobExecution.batchStatus)
+            .isEqualTo(BatchStatus.COMPLETED)
+
+        // assert output table
+        assertThat(integrationTestResource.findOutputTable())
+            .isEqualTo((1..30).toList() + (61..90))
+
+        assertThat(findMailRequest())
+            .hasSize(60)
+    }
+    
+    private fun findMailRequest(): List<Map<String, Any>> {
+        return integrationTestResource.connection.createStatement().use {
+            it.executeQuery("select * from mail_request").use {
+                generateSequence { it }
+                    .takeWhile(ResultSet::next)
+                    .map {
+                        mapOf(
+                            "id" to it.getLong("id"),
+                            "subject" to it.getString("subject"),
+                            "body" to it.getString("body")
+                        )
+                    }.toList()
+            }
+        }
+    }
+
+    private fun findMailRecipient(): List<Map<String, Any>> {
+        return integrationTestResource.connection.createStatement().use {
+            it.executeQuery("select * from mail_recipient").use {
+                generateSequence { it }
+                    .takeWhile(ResultSet::next)
+                    .map {
+                        mapOf(
+                            "mail_address" to it.getString("mail_address"),
+                            "type" to it.getString("type")
+                        )
+                    }.toList()
+            }
+        }
     }
 }

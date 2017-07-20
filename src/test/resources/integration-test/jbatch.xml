@@ -6,5 +6,17 @@
 
   <import file="integration-test/datasource.xml" />
   <import file="integration-test/batchListeners.xml" />
+  <import file="integration-test/mail.xml" />
+  <import file="integration-test/date.xml" />
 
+  <component class="nablarch.core.repository.initialization.BasicApplicationInitializer" name="initializer">
+    <property name="initializeList">
+      <list>
+        <component-ref name="mailRequest" />
+        <component-ref name="mailRecipient" />
+        <component-ref name="mailFile" />
+        <component-ref name="businessDateProvider" />
+      </list>
+    </property>
+  </component>
 </component-configuration>
