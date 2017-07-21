@@ -105,6 +105,10 @@ public class TransactionalTest {
         @Id
         @Column(name = "NAME")
         public String name;
+
+        public String getName() {
+            return name;
+        }
     }
 
     @org.seasar.doma.Entity

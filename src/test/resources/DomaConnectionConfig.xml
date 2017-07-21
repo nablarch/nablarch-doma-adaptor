@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+
+  <import file="db-default.xml" />
+  <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="domaDialect" />
+
+  <component name="daoContextFactory" class="nablarch.common.dao.BasicDaoContextFactory" />
+
+  <component name="dialect" class="nablarch.core.db.dialect.H2Dialect" />
+
+  <component name="statementFactory" class="nablarch.core.db.statement.BasicStatementFactory" />
+
+</component-configuration>
