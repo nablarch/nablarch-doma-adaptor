@@ -23,4 +23,40 @@
     <component class="nablarch.integration.doma.batch.ee.listener.integration.app.ErrorStepListener" />
   </list>
 
+  <component class="nablarch.integration.doma.ConnectionFactoryFromDomaConnection" name="connectionFactory">
+    <property name="dbAccessExceptionFactory">
+      <component class="nablarch.core.db.connection.exception.BasicDbAccessExceptionFactory" />
+    </property>
+    <property name="dialect">
+      <component class="nablarch.core.db.dialect.H2Dialect" />
+    </property>
+    <property name="statementFactory">
+      <component class="nablarch.core.db.statement.BasicStatementFactory">
+        <property name="sqlStatementExceptionFactory">
+          <component class="nablarch.core.db.statement.exception.BasicSqlStatementExceptionFactory" />
+        </property>
+      </component>
+    </property>
+    <property name="statementReuse" value="true" />
+  </component>
+  
+  
+  <list name="nablarch-integration.stepListeners">
+    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener" name="listener">
+      <property name="connectionFactory" ref="connectionFactory" />
+    </component>
+  </list>
+
+  <list name="nablarch-integration-chunk.stepListeners">
+    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener" name="listener">
+      <property name="connectionFactory" ref="connectionFactory" />
+    </component>
+  </list>
+  
+  <list name="nablarch-integration-chunk.itemWriteListeners">
+    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionItemWriteListener" name="listener">
+      <property name="connectionFactory" ref="connectionFactory" />
+    </component>
+  </list>
+
 </component-configuration>

@@ -82,8 +82,57 @@ class IntegrationTestResource : ExternalResource() {
         connection.createStatement().use { statement ->
             statement.execute("create table if not exists input (id bigint not null primary key)")
             statement.execute("create table if not exists output (id bigint not null primary key)")
+            statement.execute("""
+            create table if not exists mail_request (
+              id bigint not null primary key,
+              subject varchar(100),
+              from_address varchar(100),
+              reply varchar(100),
+              return varchar(100),
+              body varchar(1000),
+              charset varchar(100),
+              status varchar(10),
+              request_dt timestamp,
+              send_dt timestamp
+            )
+            """)
+            
+            statement.execute("""
+            create table if not exists mail_recipient(
+                id bigint not null,
+                no int not null,
+                mail_address varchar(100),
+                type varchar(5),
+                primary key(id, no)
+            )
+            """)
+            
+            statement.execute("""
+            create table if not exists mail_file(
+                id bigint not null,
+                no int not null,
+                content_type varchar(100),
+                name varchar(100),
+                file blob,
+                primary key(id, no)
+            )
+            """)
+            
+            statement.execute("""
+            create table if not exists b_date (
+              segment varchar(20) not null primary key,
+              dt char(8)
+            )
+            """)
+            
+            statement.execute("create sequence if not exists mail_id")
             statement.execute("truncate table input")
             statement.execute("truncate table output")
+            statement.execute("truncate table mail_request")
+            statement.execute("truncate table mail_recipient")
+            statement.execute("truncate table mail_file")
+            statement.execute("truncate table b_date")
+            statement.execute("insert into b_date values ('default', '20170720')")
         }
         connection.prepareStatement("insert into input values (?)").use { statement ->
             inputRecords().forEach {
@@ -93,6 +142,4 @@ class IntegrationTestResource : ExternalResource() {
             statement.executeBatch()
         }
     }
-
-
 }

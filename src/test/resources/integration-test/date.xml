@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration component-configuration.xsd">
+
+  <component class="nablarch.core.date.BasicBusinessDateProvider" name="businessDateProvider">
+    <property name="tableName" value="b_date" />
+    <property name="defaultSegment" value="default" />
+    <property name="segmentColumnName" value="segment" />
+    <property name="dateColumnName" value="dt" />
+  </component>
+</component-configuration>

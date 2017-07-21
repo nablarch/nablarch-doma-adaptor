@@ -1,0 +1,28 @@
+<job id="nablarch-integration" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+  <listeners>
+    <listener ref="nablarchJobListenerExecutor">
+      <properties>
+        <property name="diConfigFilePath" value="integration-test/jbatch.xml" />
+      </properties>
+    </listener>
+  </listeners>
+
+  <step id="chunk">
+    <listeners>
+      <listener ref="nablarchStepListenerExecutor" />
+      <listener ref="nablarchItemWriteListenerExecutor" />
+    </listeners>
+    <chunk item-count="30">
+      <reader ref="simpleReader" />
+      <processor ref="nablarchIntegrationProcessor" />
+      <writer ref="nablarchIntegrationWriter">
+        <properties>
+          <property name="errorMode" value="#{jobParameters['errorMode']}" />
+        </properties>
+      </writer>
+      <skippable-exception-classes>
+        <include class="java.lang.IllegalStateException" />
+      </skippable-exception-classes>
+    </chunk>
+  </step>
+</job>
