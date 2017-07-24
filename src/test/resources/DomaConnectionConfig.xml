@@ -6,10 +6,21 @@
   <import file="db-default.xml" />
   <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="domaDialect" />
 
-  <component name="daoContextFactory" class="nablarch.common.dao.BasicDaoContextFactory" />
-
-  <component name="dialect" class="nablarch.core.db.dialect.H2Dialect" />
-
-  <component name="statementFactory" class="nablarch.core.db.statement.BasicStatementFactory" />
+  <component class="nablarch.integration.doma.ConnectionFactoryFromDomaConnection" name="connectionFactory">
+    <property name="dbAccessExceptionFactory">
+      <component class="nablarch.core.db.connection.exception.BasicDbAccessExceptionFactory" />
+    </property>
+    <property name="dialect">
+      <component class="nablarch.core.db.dialect.H2Dialect" />
+    </property>
+    <property name="statementFactory">
+      <component class="nablarch.core.db.statement.BasicStatementFactory">
+        <property name="sqlStatementExceptionFactory">
+          <component class="nablarch.core.db.statement.exception.BasicSqlStatementExceptionFactory" />
+        </property>
+      </component>
+    </property>
+    <property name="statementReuse" value="true" />
+  </component>
 
 </component-configuration>
