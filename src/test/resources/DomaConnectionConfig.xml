@@ -4,9 +4,11 @@
     xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
 
   <import file="db-default.xml" />
+  <import file="date.xml" />
+  <import file="mail.xml" />
   <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="domaDialect" />
 
-  <component class="nablarch.integration.doma.ConnectionFactoryFromDomaConnection" name="connectionFactory">
+  <component name="connectionFactoryFromDoma" class="nablarch.integration.doma.ConnectionFactoryFromDomaConnection">
     <property name="dbAccessExceptionFactory">
       <component class="nablarch.core.db.connection.exception.BasicDbAccessExceptionFactory" />
     </property>
@@ -21,6 +23,17 @@
       </component>
     </property>
     <property name="statementReuse" value="true" />
+  </component>
+
+  <component name="initializer" class="nablarch.core.repository.initialization.BasicApplicationInitializer">
+    <property name="initializeList">
+      <list>
+        <component-ref name="businessDateProvider" />
+        <component-ref name="mailRequest" />
+        <component-ref name="mailRecipient" />
+        <component-ref name="mailFile" />
+      </list>
+    </property>
   </component>
 
 </component-configuration>

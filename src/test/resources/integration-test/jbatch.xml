@@ -6,8 +6,8 @@
 
   <import file="integration-test/datasource.xml" />
   <import file="integration-test/batchListeners.xml" />
-  <import file="integration-test/mail.xml" />
-  <import file="integration-test/date.xml" />
+  <import file="mail.xml" />
+  <import file="date.xml" />
 
   <component class="nablarch.core.repository.initialization.BasicApplicationInitializer" name="initializer">
     <property name="initializeList">

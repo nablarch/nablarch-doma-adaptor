@@ -1,5 +1,12 @@
 package nablarch.integration.doma;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.seasar.doma.jdbc.tx.TransactionIsolationLevel;
+
 import nablarch.core.db.connection.DbConnectionContext;
 import nablarch.core.repository.SystemRepository;
 import nablarch.core.transaction.TransactionContext;
@@ -8,12 +15,6 @@ import nablarch.fw.ExecutionContext;
 import nablarch.fw.Interceptor;
 import nablarch.fw.Interceptor.Impl;
 import nablarch.integration.doma.Transactional.TransactionalImpl;
-import org.seasar.doma.jdbc.tx.TransactionIsolationLevel;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Domaによるトランザクション制御を行うことを表すアノテーション。
@@ -40,8 +41,7 @@ public @interface Transactional {
          * Nablarchのデータベースアクセスが利用出来るようにコネクションを{@link DbConnectionContext}の設定する。
          */
         private void addConnectionToNablarch() {
-            ConnectionFactoryFromDomaConnection connectionFactory =
-                    SystemRepository.get("connectionFactory");
+            final ConnectionFactoryFromDomaConnection connectionFactory = getConnectionFactory();
             if (connectionFactory != null) {
                 DbConnectionContext.setConnection(
                         connectionFactory.getConnection(TransactionContext.DEFAULT_TRANSACTION_CONTEXT_KEY));
@@ -53,10 +53,23 @@ public @interface Transactional {
             return DomaConfig.singleton().getTransactionManager().requiresNew(
                     getInterceptor().transactionIsolationLevel(),
                     () -> {
-                        addConnectionToNablarch();
-                        return getOriginalHandler().handle(data, context);
+                        try {
+                            addConnectionToNablarch();
+                            return getOriginalHandler().handle(data, context);
+                        } finally {
+                            DbConnectionContext.removeConnection();
+                        }
                     }
             );
+        }
+
+        /**
+         * DomaのコネクションからNablarch用のデータベース接続に変換するファクトリを取得する。
+         *
+         * @return DomaのコネクションをNablarch用に変換するファクトリ
+         */
+        private ConnectionFactoryFromDomaConnection getConnectionFactory() {
+            return SystemRepository.get("connectionFactoryFromDoma");
         }
     }
 }
