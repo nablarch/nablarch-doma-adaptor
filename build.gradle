@@ -64,7 +64,6 @@ dependencies {
 }
 
 test {
-  ignoreFailures = true
   exclude '**/JBatchIntegration*'
   reports.html.enabled = false
 }
