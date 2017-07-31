@@ -1,18 +1,14 @@
 package nablarch.integration.doma;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Handler;
 import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.db.helper.DatabaseTestRunner;
 import nablarch.test.support.db.helper.VariousDbTestHelper;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -91,35 +87,4 @@ public class TransactionalTest {
                 VariousDbTestHelper.findAll(TestTable.class).size(), is(0));
     }
 
-    @Entity
-    @Table(name = "TEST_TABLE")
-    public static class TestTable {
-
-        public TestTable() {
-        }
-
-        public TestTable(String name) {
-            this.name = name;
-        }
-
-        @Id
-        @Column(name = "NAME")
-        public String name;
-    }
-
-    @org.seasar.doma.Entity
-    @org.seasar.doma.Table(name = "TEST_TABLE")
-    public static class TestTableForDoma {
-
-        public TestTableForDoma() {
-        }
-
-        public TestTableForDoma(String name) {
-            this.name = name;
-        }
-
-        @org.seasar.doma.Id
-        @org.seasar.doma.Column(name = "NAME")
-        public String name;
-    }
 }

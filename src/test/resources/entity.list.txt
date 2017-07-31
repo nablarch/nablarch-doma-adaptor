@@ -1,2 +1,6 @@
-nablarch.integration.doma.TransactionalTest$TestTable
+nablarch.integration.doma.TestTable
 nablarch.integration.doma.batch.ee.listener.integration.DomaTestSupport$TestEntity
+nablarch.integration.doma.TransactionalWithNablarch$BusinessDate
+nablarch.integration.doma.TransactionalWithNablarch$MailRequest
+nablarch.integration.doma.TransactionalWithNablarch$MailRecipient
+nablarch.integration.doma.TransactionalWithNablarch$MailFile
