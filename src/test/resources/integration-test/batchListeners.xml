@@ -6,24 +6,25 @@
 
   <!-- StepListener-->
   <list name="stepListeners">
-    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener" />
+    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener" autowireType="None"/>
   </list>
 
   <!-- ItemWriteListener -->
   <list name="itemWriteListeners">
-    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionItemWriteListener" />
+    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionItemWriteListener"
+        autowireType="None" />
   </list>
   
   <list name="listener-error.stepListeners">
-    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener" />
+    <component class="nablarch.integration.doma.batch.ee.listener.DomaTransactionStepListener" autowireType="None" />
     <!--
     エラーを送出するリスナを後段に設定する。
     ※afterは後ろから実行されるのでトランザクション制御前に例外が送出される
     -->
-    <component class="nablarch.integration.doma.batch.ee.listener.integration.app.ErrorStepListener" />
+    <component class="nablarch.integration.doma.batch.ee.listener.integration.app.ErrorStepListener" autowireType="None" />
   </list>
 
-  <component class="nablarch.integration.doma.ConnectionFactoryFromDomaConnection" name="connectionFactory">
+  <component class="nablarch.integration.doma.ConnectionFactoryFromDomaConnection" name="connectionFactory" autowireType="None">
     <property name="dbAccessExceptionFactory">
       <component class="nablarch.core.db.connection.exception.BasicDbAccessExceptionFactory" />
     </property>
