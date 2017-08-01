@@ -24,7 +24,7 @@ class NablarchIntegrationBatchlet : AbstractBatchlet() {
         mailSender()
 
         if (BusinessDateUtil.getDate() != "20170720") {
-            throw IllegalStateException("業務日付が想定外")
+            throw IllegalStateException("業務日付が想定外。 期待値:20170720、実際の結果:${BusinessDateUtil.getDate()}")
         }
 
         if (errorMode == "true") {

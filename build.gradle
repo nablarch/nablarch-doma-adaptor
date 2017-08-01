@@ -40,7 +40,11 @@ dependencies {
   provided 'javax.inject:javax.inject:1'
   provided 'javax.enterprise:cdi-api:1.1'
   compile 'org.seasar.doma:doma:2.16.0'
-  provided "com.nablarch.framework:nablarch-fw-batch-ee:${nablarchFwBatchEeVersion}"
+  
+  compile "com.nablarch.framework:nablarch-core-jdbc:1.2.2"
+  provided("com.nablarch.framework:nablarch-fw-batch-ee:${nablarchFwBatchEeVersion}") {
+    exclude module: 'nablarch-core-jdbc'
+  }
 
   compile "com.nablarch.framework:nablarch-core-repository:${nablarchCoreRepositoryVersion}"
 

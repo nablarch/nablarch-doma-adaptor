@@ -5,6 +5,7 @@ import java.util.List;
 import org.seasar.doma.jdbc.tx.LocalTransaction;
 
 import nablarch.core.db.connection.DbConnectionContext;
+import nablarch.core.db.connection.TransactionManagerConnection;
 import nablarch.core.transaction.TransactionContext;
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.fw.batch.ee.listener.chunk.AbstractNablarchItemWriteListener;
@@ -33,9 +34,9 @@ public class DomaTransactionItemWriteListener extends AbstractNablarchItemWriteL
     
     @Override
     public void afterWrite(final NablarchListenerContext context, final List<Object> items) {
-        DbConnectionContext.removeConnection();
         LocalTransaction localTransaction = DomaConfig.singleton().getLocalTransaction();
         try {
+            removeNablarchConnection();
             if (context.isProcessSucceeded()) {
                 localTransaction.commit();
             }
@@ -50,11 +51,27 @@ public class DomaTransactionItemWriteListener extends AbstractNablarchItemWriteL
     public void onWriteError(final NablarchListenerContext context, final List<Object> items, final Exception ex) {
         final LocalTransaction transaction = DomaConfig.singleton()
                                                        .getLocalTransaction();
-        DbConnectionContext.removeConnection();
+        removeNablarchConnection();
         transaction.rollback();
         transaction.begin();
         addConnectionToNablarch();
     }
+    
+    /**
+     * nablarch用のデータベース接続の破棄処理を行う。
+     */
+    private void removeNablarchConnection() {
+        if (!DbConnectionContext.containConnection(TransactionContext.DEFAULT_TRANSACTION_CONTEXT_KEY)) {
+            return;
+        }
+        final TransactionManagerConnection connection = DbConnectionContext.getTransactionManagerConnection();
+        try {
+            connection.terminate();
+        } finally {
+            DbConnectionContext.removeConnection();
+        }
+    }
+
 
     /**
      * Nablarchのデータベースアクセスが利用出来るようにコネクションを{@link DbConnectionContext}の設定する。
