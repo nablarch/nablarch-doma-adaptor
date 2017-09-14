@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration component-configuration.xsd">
 
-  <component class="nablarch.common.mail.MailRequester" name="mailRequester">
+  <component class="nablarch.common.mail.MailRequester" name="mailRequester" autowireType="None">
     <property name="mailRequestIdGenerator">
       <component class="nablarch.common.idgenerator.SequenceIdGenerator" />
     </property>
