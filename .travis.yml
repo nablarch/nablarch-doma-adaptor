@@ -12,6 +12,7 @@ cache:
 script:
 - git clone -b master https://github.com/nablarch/nablarch-ci-script.git $HOME/build-script/
   && chmod +x $HOME/build-script/travis-ci/*.sh
+- $HOME/build-script/travis-ci/setup-oracle-jdk8.sh
 - $HOME/build-script/travis-ci/prepare_travis_settings.sh
 - $HOME/build-script/travis-ci/build-nablarch.sh -m deploy -p ci,dev-deploy
 - $HOME/build-script/travis-ci/upload-test-report.sh -p dev-deploy
