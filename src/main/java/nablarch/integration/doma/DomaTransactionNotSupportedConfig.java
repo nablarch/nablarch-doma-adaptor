@@ -8,7 +8,6 @@ import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.dialect.Dialect;
 
-import nablarch.core.log.basic.LogLevel;
 import nablarch.core.util.annotation.Published;
 
 /**
@@ -41,7 +40,7 @@ public final class DomaTransactionNotSupportedConfig implements Config {
         final ConfigHolder holder = new ConfigHolder();
         dialect = holder.getDialect();
         dataSource = holder.getDataSource();
-        jdbcLogger = new NablarchJdbcLogger(LogLevel.TRACE);
+        jdbcLogger = holder.getJdbcLogger();
     }
 
     @Override

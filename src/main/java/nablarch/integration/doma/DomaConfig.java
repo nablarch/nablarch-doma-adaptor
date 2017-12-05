@@ -12,7 +12,6 @@ import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
 
-import nablarch.core.log.basic.LogLevel;
 import nablarch.core.util.annotation.Published;
 
 /**
@@ -45,10 +44,11 @@ public final class DomaConfig implements Config {
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
     private DomaConfig() {
-        //ローカルトランザクションを取得するときにロガーが必要なので先にフィールドを初期化している
-        jdbcLogger = new NablarchJdbcLogger(LogLevel.TRACE);
-
         final ConfigHolder holder = new ConfigHolder();
+
+        //ローカルトランザクションを取得するときにロガーが必要なので先にフィールドを初期化している
+        jdbcLogger = holder.getJdbcLogger();
+
         dialect = holder.getDialect();
         localTransactionDataSource = new LocalTransactionDataSource(holder.getDataSource());
         localTransaction = localTransactionDataSource.getLocalTransaction(getJdbcLogger());
