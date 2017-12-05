@@ -1,17 +1,14 @@
 package nablarch.integration.doma;
 
-import java.util.logging.Level;
-
 import javax.sql.DataSource;
 
 import org.seasar.doma.SingletonConfig;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
-import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
 
-import nablarch.core.repository.SystemRepository;
+import nablarch.core.log.basic.LogLevel;
 import nablarch.core.util.annotation.Published;
 
 /**
@@ -34,6 +31,9 @@ public final class DomaTransactionNotSupportedConfig implements Config {
     /** データソース*/
     private final DataSource dataSource;
 
+    /** ロガー */
+    private final JdbcLogger jdbcLogger;
+
     /**
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
@@ -41,6 +41,7 @@ public final class DomaTransactionNotSupportedConfig implements Config {
         final ConfigHolder holder = new ConfigHolder();
         dialect = holder.getDialect();
         dataSource = holder.getDataSource();
+        jdbcLogger = new NablarchJdbcLogger(LogLevel.TRACE);
     }
 
     @Override
@@ -55,7 +56,7 @@ public final class DomaTransactionNotSupportedConfig implements Config {
 
     @Override
     public JdbcLogger getJdbcLogger() {
-        return new UtilLoggingJdbcLogger(Level.FINE);
+        return jdbcLogger;
     }
 
     @Override

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
@@ -102,4 +103,12 @@ public class DomaConfigTest {
         Deencapsulation.newInstance(DomaConfig.class);
     }
 
+    /**
+     * ロガーが取得できること。
+     */
+    @Test
+    public void getJdbcLogger() {
+        JdbcLogger jdbcLogger = DomaConfig.singleton().getJdbcLogger();
+        assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
+    }
 }

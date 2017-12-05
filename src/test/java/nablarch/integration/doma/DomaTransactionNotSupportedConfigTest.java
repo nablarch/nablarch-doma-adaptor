@@ -2,10 +2,13 @@ package nablarch.integration.doma;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
@@ -112,5 +115,14 @@ public class DomaTransactionNotSupportedConfigTest {
         })
                   .isInstanceOf(IllegalArgumentException.class)
                   .hasMessage("specified dataSource is not registered in SystemRepository.");
+    }
+
+    /**
+     * ロガーが取得できること。
+     */
+    @Test
+    public void getJdbcLogger() {
+        JdbcLogger jdbcLogger = DomaTransactionNotSupportedConfig.singleton().getJdbcLogger();
+        assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
     }
 }
