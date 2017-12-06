@@ -1,26 +1,26 @@
 package nablarch.integration.doma;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
+import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
 import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
 
-import nablarch.test.support.SystemRepositoryResource;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import mockit.Deencapsulation;
+import nablarch.test.support.SystemRepositoryResource;
 
 /**
  * {@link DomaConfig}のテストクラス。
@@ -109,6 +109,16 @@ public class DomaConfigTest {
     @Test
     public void getJdbcLogger() {
         JdbcLogger jdbcLogger = DomaConfig.singleton().getJdbcLogger();
+        assertThat(jdbcLogger, instanceOf(UtilLoggingJdbcLogger.class));
+    }
+
+    /**
+     * デフォルトのロガーが取得できること。
+     */
+    @Test
+    public void getDefaultJdbcLogger() {
+        repositoryResource.addComponent("domaJdbcLogger", null);
+        JdbcLogger jdbcLogger = Deencapsulation.newInstance(DomaConfig.class).getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
     }
 }

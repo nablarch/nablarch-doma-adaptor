@@ -8,18 +8,17 @@ import static org.junit.Assert.assertThat;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.seasar.doma.jdbc.JdbcLogger;
-import org.seasar.doma.jdbc.Naming;
-import org.seasar.doma.jdbc.dialect.Dialect;
-import org.seasar.doma.jdbc.dialect.H2Dialect;
-
-import nablarch.test.support.SystemRepositoryResource;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.seasar.doma.jdbc.JdbcLogger;
+import org.seasar.doma.jdbc.Naming;
+import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
+import org.seasar.doma.jdbc.dialect.Dialect;
+import org.seasar.doma.jdbc.dialect.H2Dialect;
 
 import mockit.Deencapsulation;
+import nablarch.test.support.SystemRepositoryResource;
 
 /**
  * {@link DomaTransactionNotSupportedConfig}のテスト。
@@ -123,6 +122,16 @@ public class DomaTransactionNotSupportedConfigTest {
     @Test
     public void getJdbcLogger() {
         JdbcLogger jdbcLogger = DomaTransactionNotSupportedConfig.singleton().getJdbcLogger();
+        assertThat(jdbcLogger, instanceOf(UtilLoggingJdbcLogger.class));
+    }
+
+    /**
+     * デフォルトのロガーが取得できること。
+     */
+    @Test
+    public void getDefaultJdbcLogger() {
+        repositoryResource.addComponent("domaJdbcLogger", null);
+        JdbcLogger jdbcLogger = Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class).getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
     }
 }
