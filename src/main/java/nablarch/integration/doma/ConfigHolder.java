@@ -2,8 +2,10 @@ package nablarch.integration.doma;
 
 import javax.sql.DataSource;
 
+import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
 
+import nablarch.core.log.basic.LogLevel;
 import nablarch.core.repository.SystemRepository;
 
 /**
@@ -18,6 +20,9 @@ public class ConfigHolder {
 
     /** {@link SystemRepository}に定義されているデータソース名 */
     private static final String DATA_SOURCE_NAME = "dataSource";
+
+    /** {@link SystemRepository}に定義されているDomaのJdbcLogger名 */
+    private static final String JDBC_LOGGER_NAME = "domaJdbcLogger";
 
     /**
      * Domaが使用する{@link Dialect}を返す。
@@ -44,5 +49,20 @@ public class ConfigHolder {
                     "specified " + DATA_SOURCE_NAME + " is not registered in SystemRepository.");
         }
         return dataSource;
+    }
+
+    /**
+     * Domaが使用する{@link JdbcLogger}を返す。
+     * 
+     * {@link SystemRepository}に定義されていない場合は{@link NablarchJdbcLogger}を返す。
+     *
+     * @return JdbcLogger
+     */
+    public JdbcLogger getJdbcLogger() {
+        final JdbcLogger jdbcLogger = SystemRepository.get(JDBC_LOGGER_NAME);
+        if (jdbcLogger == null) {
+            return new NablarchJdbcLogger(LogLevel.TRACE);
+        }
+        return jdbcLogger;
     }
 }
