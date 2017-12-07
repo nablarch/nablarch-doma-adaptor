@@ -16,13 +16,22 @@ import nablarch.core.log.basic.LogLevel;
  */
 public class NablarchJdbcLogger extends AbstractJdbcLogger<LogLevel> {
 
+    /** Nablarchの{@link Logger} */
     private final Logger logger;
 
+    /**
+     * ログレベルを指定してインスタンスを構築する。
+     * @param level ログレベル
+     */
     public NablarchJdbcLogger(final LogLevel level) {
         this(level, LoggerManager.get(NablarchJdbcLogger.class));
     }
 
-    //テストで使用するコンストラクタ
+    /**
+     * ログレベルとロガー指定してインスタンスを構築する（テストで使用する）。
+     * @param level ログレベル
+     * @param logger ロガー
+     */
     NablarchJdbcLogger(final LogLevel level, final Logger logger) {
         super(level);
         this.logger = logger;
