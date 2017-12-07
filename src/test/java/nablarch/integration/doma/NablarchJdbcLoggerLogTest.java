@@ -141,5 +141,13 @@ public class NablarchJdbcLoggerLogTest {
             this.underLevel = underLevel;
             this.overLevel = overLevel;
         }
+
+        @Override
+        public String toString() {
+            String underLevelName = underLevel != null ? underLevel.name() : "<nothing>";
+            String overLevelName = overLevel != null ? overLevel.name() : "<nothing>";
+            return String.format("logger level = %1$s, under = %2$s, over = %3$s", level,
+                    underLevelName, overLevelName);
+        }
     }
 }
