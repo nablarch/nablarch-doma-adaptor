@@ -1,9 +1,7 @@
 package nablarch.integration.doma;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +10,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,22 +31,22 @@ import nablarch.test.support.log.app.OnMemoryLogWriter;
 public class NablarchJdbcLoggerLogTest {
 
     @Parameters(name = "{0}")
-    public static List<LogLevel> parameters() {
+    public static List<Param> parameters() {
         return Arrays.asList(
-                LogLevel.FATAL,
-                LogLevel.ERROR,
-                LogLevel.WARN,
-                LogLevel.INFO,
-                LogLevel.DEBUG,
-                LogLevel.TRACE);
+                new Param(LogLevel.FATAL, null, LogLevel.ERROR),
+                new Param(LogLevel.ERROR, LogLevel.FATAL, LogLevel.WARN),
+                new Param(LogLevel.WARN, LogLevel.ERROR, LogLevel.INFO),
+                new Param(LogLevel.INFO, LogLevel.WARN, LogLevel.DEBUG),
+                new Param(LogLevel.DEBUG, LogLevel.INFO, LogLevel.TRACE),
+                new Param(LogLevel.TRACE, LogLevel.DEBUG, null));
     }
 
     private NablarchJdbcLogger sut;
     private LoggerFactory factory;
-    private final LogLevel logLevel;
+    private final Param param;
 
-    public NablarchJdbcLoggerLogTest(LogLevel logLevel) {
-        this.logLevel = logLevel;
+    public NablarchJdbcLoggerLogTest(Param param) {
+        this.param = param;
     }
 
     /**
@@ -55,11 +54,38 @@ public class NablarchJdbcLoggerLogTest {
      */
     @Test
     public void log() {
-        sut.log(logLevel, null, null, null, () -> "test");
+        sut.log(param.level, null, null, null, () -> "test");
 
         List<String> messages = OnMemoryLogWriter.getMessages("writer.mem");
         assertThat(messages.size(), is(1));
-        assertThat(messages.get(0), allOf(containsString(logLevel.name()), containsString("test")));
+        assertThat(messages.get(0),
+                allOf(containsString(param.level.name()), containsString("test")));
+    }
+
+    /**
+     * ロガーに設定されたログレベルよりも低いレベルのログは出力されること
+     */
+    @Test
+    public void logUnderLevel() {
+        Assume.assumeThat("ロガーに設定されているのが最も低いログレベルなのでテストは不要", param.underLevel, notNullValue());
+        sut.log(param.underLevel, null, null, null, () -> "test");
+
+        List<String> messages = OnMemoryLogWriter.getMessages("writer.mem");
+        assertThat(messages.size(), is(1));
+        assertThat(messages.get(0),
+                allOf(containsString(param.underLevel.name()), containsString("test")));
+    }
+
+    /**
+     * ロガーに設定されたログレベルよりも高いレベルのログは出力されないこと
+     */
+    @Test
+    public void logOverLevel() {
+        Assume.assumeThat("ロガーに設定されているのが最も高いログレベルなのでテストは不要", param.overLevel, notNullValue());
+        sut.log(param.overLevel, null, null, null, () -> "test");
+
+        List<String> messages = OnMemoryLogWriter.getMessages("writer.mem");
+        assertThat(messages.isEmpty(), is(true));
     }
 
     @Before
@@ -82,7 +108,7 @@ public class NablarchJdbcLoggerLogTest {
     /**
      * OnMemoryLogWriterを使うための設定。
      */
-    private static class MockLogSettings extends LogSettings {
+    private class MockLogSettings extends LogSettings {
 
         public MockLogSettings() {
             super(null);
@@ -95,9 +121,25 @@ public class NablarchJdbcLoggerLogTest {
             props.put("writer.mem.className", OnMemoryLogWriter.class.getName());
             props.put("availableLoggersNamesOrder", "log");
             props.put("loggers.log.nameRegex", ".+");
-            props.put("loggers.log.level", "TRACE");
+            props.put("loggers.log.level", param.level.name());
             props.put("loggers.log.writerNames", "mem");
             return props;
+        }
+    }
+
+    private static class Param {
+
+        /** ロガーに設定されるログレベル */
+        private final LogLevel level;
+        /** {@link #level}よりも低いログレベル */
+        private final LogLevel underLevel;
+        /** {@link #level}よりも高いログレベル */
+        private final LogLevel overLevel;
+
+        public Param(LogLevel level, LogLevel underLevel, LogLevel overLevel) {
+            this.level = level;
+            this.underLevel = underLevel;
+            this.overLevel = overLevel;
         }
     }
 }
