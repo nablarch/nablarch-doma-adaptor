@@ -121,4 +121,29 @@ public class DomaConfigTest {
         JdbcLogger jdbcLogger = Deencapsulation.newInstance(DomaConfig.class).getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
     }
+
+    /**
+     * Statementに関する設定値が取得できること。
+     */
+    @Test
+    public void getStatementProperties() {
+        DomaConfig config = DomaConfig.singleton();
+        assertThat(config.getMaxRows(), is(1000));
+        assertThat(config.getFetchSize(), is(200));
+        assertThat(config.getQueryTimeout(), is(30));
+        assertThat(config.getBatchSize(), is(400));
+    }
+
+    /**
+     * デフォルトのStatementに関する設定値が取得できること。
+     */
+    @Test
+    public void getDefaultStatementProperties() {
+        repositoryResource.addComponent("domaStatementProperties", null);
+        DomaConfig config = Deencapsulation.newInstance(DomaConfig.class);
+        assertThat(config.getMaxRows(), is(0));
+        assertThat(config.getFetchSize(), is(0));
+        assertThat(config.getQueryTimeout(), is(0));
+        assertThat(config.getBatchSize(), is(0));
+    }
 }

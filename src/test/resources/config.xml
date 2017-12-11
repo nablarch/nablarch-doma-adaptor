@@ -6,5 +6,11 @@
   <import file="db-default.xml" />
   <component class="org.seasar.doma.jdbc.dialect.H2Dialect" name="domaDialect" />
   <component class="org.seasar.doma.jdbc.UtilLoggingJdbcLogger" name="domaJdbcLogger" />
+  <component class="nablarch.integration.doma.DomaStatementProperties" name="domaStatementProperties">
+    <property name="maxRows" value="1000" />
+    <property name="fetchSize" value="200" />
+    <property name="queryTimeout" value="30" />
+    <property name="batchSize" value="400" />
+  </component>
 
 </component-configuration>

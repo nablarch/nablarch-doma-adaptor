@@ -40,6 +40,9 @@ public final class DomaConfig implements Config {
     /** ロガー */
     private final JdbcLogger jdbcLogger;
 
+    /** DomaProperties */
+    private final DomaStatementProperties domaStatementProperties;
+
     /**
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
@@ -53,6 +56,8 @@ public final class DomaConfig implements Config {
         localTransactionDataSource = new LocalTransactionDataSource(holder.getDataSource());
         localTransaction = localTransactionDataSource.getLocalTransaction(getJdbcLogger());
         localTransactionManager = new LocalTransactionManager(localTransaction);
+
+        domaStatementProperties = holder.getDomaStatementProperties();
     }
 
     @Override
@@ -79,6 +84,26 @@ public final class DomaConfig implements Config {
     @Override
     public Naming getNaming() {
         return Naming.SNAKE_UPPER_CASE;
+    }
+
+    @Override
+    public int getMaxRows() {
+        return domaStatementProperties.getMaxRows();
+    }
+
+    @Override
+    public int getFetchSize() {
+        return domaStatementProperties.getFetchSize();
+    }
+
+    @Override
+    public int getQueryTimeout() {
+        return domaStatementProperties.getQueryTimeout();
+    }
+
+    @Override
+    public int getBatchSize() {
+        return domaStatementProperties.getBatchSize();
     }
 
     /**

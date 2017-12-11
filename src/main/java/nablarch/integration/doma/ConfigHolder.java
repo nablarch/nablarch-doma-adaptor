@@ -24,6 +24,9 @@ public class ConfigHolder {
     /** {@link SystemRepository}に定義されているDomaのJdbcLogger名 */
     private static final String JDBC_LOGGER_NAME = "domaJdbcLogger";
 
+    /** {@link SystemRepository}に定義されているDomaのStatementに関する設定名 */
+    private static final String STATEMENT_PROPERTIES_NAME = "domaStatementProperties";
+
     /**
      * Domaが使用する{@link Dialect}を返す。
      *
@@ -64,5 +67,20 @@ public class ConfigHolder {
             return new NablarchJdbcLogger(LogLevel.TRACE);
         }
         return jdbcLogger;
+    }
+
+    /**
+     * {@link DomaStatementProperties}を返す。
+     * 
+     * {@link SystemRepository}に定義されていない場合は単純にインスタンス化した{@link DomaStatementProperties}を返す。
+     *
+     * @return DomaStatementProperties
+     */
+    public DomaStatementProperties getDomaStatementProperties() {
+        final DomaStatementProperties properties = SystemRepository.get(STATEMENT_PROPERTIES_NAME);
+        if (properties == null) {
+            return new DomaStatementProperties();
+        }
+        return properties;
     }
 }
