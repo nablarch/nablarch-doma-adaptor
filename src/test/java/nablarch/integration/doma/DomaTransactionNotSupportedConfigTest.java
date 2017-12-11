@@ -1,8 +1,8 @@
 package nablarch.integration.doma;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import javax.sql.DataSource;
@@ -133,5 +133,30 @@ public class DomaTransactionNotSupportedConfigTest {
         repositoryResource.addComponent("domaJdbcLogger", null);
         JdbcLogger jdbcLogger = Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class).getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
+    }
+
+    /**
+     * Statementに関する設定値が取得できること。
+     */
+    @Test
+    public void getStatementProperties() {
+        DomaTransactionNotSupportedConfig config = DomaTransactionNotSupportedConfig.singleton();
+        assertThat(config.getMaxRows(), is(1000));
+        assertThat(config.getFetchSize(), is(200));
+        assertThat(config.getQueryTimeout(), is(30));
+        assertThat(config.getBatchSize(), is(400));
+    }
+
+    /**
+     * デフォルトのStatementに関する設定値が取得できること。
+     */
+    @Test
+    public void getDefaultStatementProperties() {
+        repositoryResource.addComponent("domaStatementProperties", null);
+        DomaTransactionNotSupportedConfig config = Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class);
+        assertThat(config.getMaxRows(), is(0));
+        assertThat(config.getFetchSize(), is(0));
+        assertThat(config.getQueryTimeout(), is(0));
+        assertThat(config.getBatchSize(), is(0));
     }
 }
