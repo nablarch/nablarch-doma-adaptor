@@ -4,10 +4,10 @@ import nablarch.common.dao.*
 import nablarch.common.mail.*
 import nablarch.core.date.*
 import nablarch.integration.doma.*
-import javax.batch.api.*
-import javax.enterprise.context.*
-import javax.inject.*
-import javax.persistence.*
+import jakarta.batch.api.*
+import jakarta.enterprise.context.*
+import jakarta.inject.*
+import jakarta.persistence.*
 
 @Named
 @Dependent
