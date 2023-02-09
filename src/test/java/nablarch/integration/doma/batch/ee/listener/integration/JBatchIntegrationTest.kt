@@ -331,7 +331,7 @@ class JBatchIntegrationTest {
             .hasSize(1)
             .first()
             .extracting("type", "mail_address")
-            .contains("1", "to@to.com")
+            .contains("0", "to@to.com")
     }
     
     /**
