@@ -3,9 +3,9 @@ package nablarch.integration.doma.batch.ee.listener.integration
 import nablarch.integration.doma.*
 import nablarch.integration.doma.batch.ee.listener.integration.app.*
 import org.seasar.doma.jdbc.*
-import javax.batch.api.chunk.*
-import javax.enterprise.context.*
-import javax.inject.*
+import jakarta.batch.api.chunk.*
+import jakarta.enterprise.context.*
+import jakarta.inject.*
 
 @Named
 @Dependent

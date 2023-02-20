@@ -8,7 +8,7 @@ import org.junit.runners.model.Statement
 import java.sql.*
 import java.util.*
 import java.util.concurrent.*
-import javax.batch.runtime.*
+import jakarta.batch.runtime.*
 import javax.sql.*
 
 class IntegrationTestResource : ExternalResource() {
