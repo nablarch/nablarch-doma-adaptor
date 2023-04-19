@@ -1,18 +1,18 @@
 package nablarch.integration.doma.batch.ee.listener;
 
-import org.seasar.doma.jdbc.tx.LocalTransaction;
-
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.integration.doma.DomaConfig;
 import nablarch.test.support.SystemRepositoryResource;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.seasar.doma.jdbc.tx.LocalTransaction;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link DomaTransactionStepListener}のテストクラス
@@ -22,8 +22,7 @@ public class DomaTransactionStepListenerTest {
     /** テスト対象となるリスナークラス */
     private DomaTransactionStepListener sut = new DomaTransactionStepListener();
 
-    @Mocked
-    private NablarchListenerContext mockContext;
+    private final NablarchListenerContext mockContext = mock(NablarchListenerContext.class);
 
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("config.xml");
@@ -33,26 +32,27 @@ public class DomaTransactionStepListenerTest {
 
     @Before
     public void setUp() {
-        domaConfig = DomaConfig.singleton();
+        // SystemRepositoryResource でシステムリポジトリが初期化されたあとで
+        // DomaConfig のクラスがロードされて初期化されないとエラーになる
+        domaConfig = mock(DomaConfig.class);
     }
-
+    
     /**
      * {@link DomaTransactionStepListener#beforeStep(NablarchListenerContext)}で
      * Domaのトランザクションが正常に開始されていること。
      */
     @Test
-    public void testBeforeStep(@Mocked LocalTransaction mockLocalTransaction) {
-        new Expectations() {{
-            domaConfig.getLocalTransaction();
-            result = mockLocalTransaction;
-        }};
+    public void testBeforeStep() {
+        LocalTransaction mockLocalTransaction = mock(LocalTransaction.class);
 
-        sut.beforeStep(mockContext);
+        try (final MockedStatic<DomaConfig> mocked = mockStatic(DomaConfig.class)) {
+            mocked.when(DomaConfig::singleton).thenReturn(domaConfig);
+            when(domaConfig.getLocalTransaction()).thenReturn(mockLocalTransaction);
 
-        new Verifications() {{
-            mockLocalTransaction.begin();
-            times = 1;
-        }};
+            sut.beforeStep(mockContext);
+
+            verify(mockLocalTransaction).begin();
+        }
     }
 
     /**
@@ -60,21 +60,19 @@ public class DomaTransactionStepListenerTest {
      * Domaのトランザクションがcommitされること。
      */
     @Test
-    public void testAfterStepNormal(@Mocked LocalTransaction mockLocalTransaction) {
-        new Expectations() {{
-            domaConfig.getLocalTransaction();
-            result = mockLocalTransaction;
+    public void testAfterStepNormal() {
+        LocalTransaction mockLocalTransaction = mock(LocalTransaction.class);
 
-            mockContext.isStepProcessSucceeded();
-            result = true;
-        }};
+        try (final MockedStatic<DomaConfig> mocked = mockStatic(DomaConfig.class)) {
+            mocked.when(DomaConfig::singleton).thenReturn(domaConfig);
+            when(domaConfig.getLocalTransaction()).thenReturn(mockLocalTransaction);
+            
+            when(mockContext.isStepProcessSucceeded()).thenReturn(true);
 
-        sut.afterStep(mockContext);
+            sut.afterStep(mockContext);
 
-        new Verifications() {{
-            mockLocalTransaction.commit();
-            times = 1;
-        }};
+            verify(mockLocalTransaction).commit();
+        }
     }
 
     /**
@@ -82,20 +80,18 @@ public class DomaTransactionStepListenerTest {
      * Domaのトランザクションがrollbackされること。
      */
     @Test
-    public void testAfterStepFailed(@Mocked LocalTransaction mockLocalTransaction) {
-        new Expectations() {{
-            domaConfig.getLocalTransaction();
-            result = mockLocalTransaction;
+    public void testAfterStepFailed() {
+        LocalTransaction mockLocalTransaction = mock(LocalTransaction.class);
 
-            mockContext.isStepProcessSucceeded();
-            result = false;
-        }};
+        try (final MockedStatic<DomaConfig> mocked = mockStatic(DomaConfig.class)) {
+            mocked.when(DomaConfig::singleton).thenReturn(domaConfig);
+            when(domaConfig.getLocalTransaction()).thenReturn(mockLocalTransaction);
+            
+            when(mockContext.isStepProcessSucceeded()).thenReturn(false);
 
-        sut.afterStep(mockContext);
+            sut.afterStep(mockContext);
 
-        new Verifications() {{
-            mockLocalTransaction.rollback();
-            times = 1;
-        }};
+            verify(mockLocalTransaction).rollback();
+        }
     }
 }

@@ -1,21 +1,21 @@
 package nablarch.integration.doma.batch.ee.listener;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.seasar.doma.jdbc.tx.LocalTransaction;
-
 import nablarch.fw.batch.ee.listener.NablarchListenerContext;
 import nablarch.integration.doma.DomaConfig;
 import nablarch.test.support.SystemRepositoryResource;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.seasar.doma.jdbc.tx.LocalTransaction;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link DomaTransactionItemWriteListener}のテストクラス
@@ -25,8 +25,7 @@ public class DomaTransactionItemWriteListenerTest {
     /** テスト対象となるリスナークラス */
     private DomaTransactionItemWriteListener sut = new DomaTransactionItemWriteListener();
 
-    @Mocked
-    private NablarchListenerContext mockContext;
+    private final NablarchListenerContext mockContext = mock(NablarchListenerContext.class);
 
     @Rule
     public SystemRepositoryResource repositoryResource = new SystemRepositoryResource("config.xml");
@@ -36,7 +35,9 @@ public class DomaTransactionItemWriteListenerTest {
 
     @Before
     public void setUp() {
-        domaConfig = DomaConfig.singleton();
+        // SystemRepositoryResource でシステムリポジトリが初期化されたあとで
+        // DomaConfig のクラスがロードされて初期化されないとエラーになる
+        domaConfig = mock(DomaConfig.class);
     }
 
     /**
@@ -44,24 +45,19 @@ public class DomaTransactionItemWriteListenerTest {
      * Domaのトランザクションが正常にコミットされ、その後開始されていること。
      */
     @Test
-    public void testAfterWriteNormal(@Mocked LocalTransaction mockLocalTransaction) {
-        new Expectations() {{
-            domaConfig.getLocalTransaction();
-            result = mockLocalTransaction;
+    public void testAfterWriteNormal() {
+        LocalTransaction mockLocalTransaction = mock(LocalTransaction.class);
+        
+        try (final MockedStatic<DomaConfig> mocked = mockStatic(DomaConfig.class)) {
+            mocked.when(DomaConfig::singleton).thenReturn(domaConfig);
+            when(domaConfig.getLocalTransaction()).thenReturn(mockLocalTransaction);
+            when(mockContext.isProcessSucceeded()).thenReturn(true);
 
-            mockContext.isProcessSucceeded();
-            result = true;
-        }};
-
-        sut.afterWrite(mockContext, Collections.emptyList());
-
-        new Verifications() {{
-            mockLocalTransaction.commit();
-            times = 1;
-
-            mockLocalTransaction.begin();
-            times = 1;
-        }};
+            sut.afterWrite(mockContext, Collections.emptyList());
+            
+            verify(mockLocalTransaction).commit();
+            verify(mockLocalTransaction).begin();
+        }
     }
 
     /**
@@ -69,21 +65,17 @@ public class DomaTransactionItemWriteListenerTest {
      * Domaのトランザクションがロールバックされていること。
      */
     @Test
-    public void testAfterWriteFailed(@Mocked final LocalTransaction mockLocalTransaction) {
-        new Expectations() {{
-            domaConfig.getLocalTransaction();
-            result = mockLocalTransaction;
+    public void testAfterWriteFailed() {
+        final LocalTransaction mockLocalTransaction = mock(LocalTransaction.class);
+        try (final MockedStatic<DomaConfig> mocked = mockStatic(DomaConfig.class)) {
+            mocked.when(DomaConfig::singleton).thenReturn(domaConfig);
+            when(domaConfig.getLocalTransaction()).thenReturn(mockLocalTransaction);
+            when(mockContext.isProcessSucceeded()).thenReturn(false);
 
-            mockContext.isProcessSucceeded();
-            result = false;
-        }};
-
-        sut.afterWrite(mockContext, Collections.emptyList());
-
-        new Verifications() {{
-            mockLocalTransaction.rollback();
-            times = 1;
-        }};
+            sut.afterWrite(mockContext, Collections.emptyList());
+            
+            verify(mockLocalTransaction).rollback();
+        }
     }
 
     /**
@@ -92,18 +84,16 @@ public class DomaTransactionItemWriteListenerTest {
      */
     @Test
     @SuppressWarnings("unchecked")
-    public void testOnWriteError(@Mocked final LocalTransaction mockLocalTransaction) {
-        new Expectations() {{
-            domaConfig.getLocalTransaction();
-            result = mockLocalTransaction;
-        }};
+    public void testOnWriteError() {
+        final LocalTransaction mockLocalTransaction = mock(LocalTransaction.class);
+        try (final MockedStatic<DomaConfig> mocked = mockStatic(DomaConfig.class)) {
+            mocked.when(DomaConfig::singleton).thenReturn(domaConfig);
+            when(domaConfig.getLocalTransaction()).thenReturn(mockLocalTransaction);
 
-        sut.onWriteError(mockContext, Collections.EMPTY_LIST, new Exception());
-
-        new Verifications() {{
-            mockLocalTransaction.rollback();
-            times = 1;
-        }};
+            sut.onWriteError(mockContext, Collections.EMPTY_LIST, new Exception());
+            
+            verify(mockLocalTransaction).rollback();
+        }
     }
 
 }
