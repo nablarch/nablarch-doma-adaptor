@@ -1,12 +1,9 @@
 package nablarch.integration.doma;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import javax.sql.DataSource;
-
+import nablarch.test.support.SystemRepositoryResource;
+import nablarch.test.support.reflection.ReflectionUtil;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,8 +16,11 @@ import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
 
-import mockit.Deencapsulation;
-import nablarch.test.support.SystemRepositoryResource;
+import javax.sql.DataSource;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * {@link DomaConfig}のテストクラス。
@@ -32,6 +32,12 @@ public class DomaConfigTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    @Before
+    public void setUp() {
+        // クラスの初期化が完了した後に実行されないと失敗するテストケースがあるので、冒頭で確実に初期化させる
+        DomaConfig.singleton();
+    }
 
     /**
      * システムリポジトリに定義したダイアレクトが取得できること。
@@ -51,7 +57,7 @@ public class DomaConfigTest {
     public void getDataSource() throws Exception {
         DataSource dataSource = DomaConfig.singleton().getDataSource();
         assertThat(dataSource, instanceOf(LocalTransactionDataSource.class));
-        assertThat(Deencapsulation.getField(dataSource, "dataSource"), instanceOf(BasicDataSource.class));
+        assertThat(ReflectionUtil.getFieldValue(dataSource, "dataSource"), instanceOf(BasicDataSource.class));
     }
 
     /**
@@ -86,7 +92,7 @@ public class DomaConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage(is("specified domaDialect is not registered in SystemRepository."));
 
-        Deencapsulation.newInstance(DomaConfig.class);
+        ReflectionUtil.newInstance(DomaConfig.class);
     }
 
     /**
@@ -100,7 +106,7 @@ public class DomaConfigTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage(is("specified dataSource is not registered in SystemRepository."));
 
-        Deencapsulation.newInstance(DomaConfig.class);
+        ReflectionUtil.newInstance(DomaConfig.class);
     }
 
     /**
@@ -118,7 +124,7 @@ public class DomaConfigTest {
     @Test
     public void getDefaultJdbcLogger() {
         repositoryResource.addComponent("domaJdbcLogger", null);
-        JdbcLogger jdbcLogger = Deencapsulation.newInstance(DomaConfig.class).getJdbcLogger();
+        JdbcLogger jdbcLogger = ReflectionUtil.newInstance(DomaConfig.class).getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
     }
 
@@ -140,7 +146,7 @@ public class DomaConfigTest {
     @Test
     public void getDefaultStatementProperties() {
         repositoryResource.addComponent("domaStatementProperties", null);
-        DomaConfig config = Deencapsulation.newInstance(DomaConfig.class);
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
         assertThat(config.getMaxRows(), is(0));
         assertThat(config.getFetchSize(), is(0));
         assertThat(config.getQueryTimeout(), is(0));

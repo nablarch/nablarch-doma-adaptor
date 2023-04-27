@@ -1,12 +1,7 @@
 package nablarch.integration.doma;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-
-import javax.sql.DataSource;
-
+import nablarch.test.support.SystemRepositoryResource;
+import nablarch.test.support.reflection.ReflectionUtil;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,8 +12,13 @@ import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
 
-import mockit.Deencapsulation;
-import nablarch.test.support.SystemRepositoryResource;
+import javax.sql.DataSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * {@link DomaTransactionNotSupportedConfig}のテスト。
@@ -95,7 +95,7 @@ public class DomaTransactionNotSupportedConfigTest {
 
         assertThatThrownBy(() -> {
             repositoryResource.addComponent("domaDialect", null);
-            Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class);
+            ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
         })
                   .isInstanceOf(IllegalArgumentException.class)
                   .hasMessage("specified domaDialect is not registered in SystemRepository.");
@@ -110,7 +110,7 @@ public class DomaTransactionNotSupportedConfigTest {
     public void dataSource_undefined() throws Exception {
         assertThatThrownBy(() -> {
             repositoryResource.addComponent("dataSource", null);
-            Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class);
+            ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
         })
                   .isInstanceOf(IllegalArgumentException.class)
                   .hasMessage("specified dataSource is not registered in SystemRepository.");
@@ -131,7 +131,7 @@ public class DomaTransactionNotSupportedConfigTest {
     @Test
     public void getDefaultJdbcLogger() {
         repositoryResource.addComponent("domaJdbcLogger", null);
-        JdbcLogger jdbcLogger = Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class).getJdbcLogger();
+        JdbcLogger jdbcLogger = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class).getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(NablarchJdbcLogger.class));
     }
 
@@ -153,7 +153,7 @@ public class DomaTransactionNotSupportedConfigTest {
     @Test
     public void getDefaultStatementProperties() {
         repositoryResource.addComponent("domaStatementProperties", null);
-        DomaTransactionNotSupportedConfig config = Deencapsulation.newInstance(DomaTransactionNotSupportedConfig.class);
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
         assertThat(config.getMaxRows(), is(0));
         assertThat(config.getFetchSize(), is(0));
         assertThat(config.getQueryTimeout(), is(0));
