@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -35,12 +36,16 @@ public class DomaTransactionNotSupportedConfigTest {
     /**
      * システムリポジトリに定義したダイアレクトが取得できること。
      *
+     * <p>Configオブジェクトの初期化タイミングがクラスロード時であり、
+     * 本テストクラスの前処理で設定したシステムリポジトリの状態で初期化される保証が無いため、
+     * 明示的に生成した結果から検証する。（以降のテストも同様）
+     *
      * @throws Exception
      */
     @Test
     public void getDialect() throws Exception {
-        Dialect dialect = DomaTransactionNotSupportedConfig.singleton()
-                                                           .getDialect();
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
+        Dialect dialect = config.getDialect();
         assertThat(dialect)
                   .isInstanceOf(H2Dialect.class);
     }
@@ -52,8 +57,8 @@ public class DomaTransactionNotSupportedConfigTest {
      */
     @Test
     public void getDataSource() throws Exception {
-        DataSource dataSource = DomaTransactionNotSupportedConfig.singleton()
-                                                                 .getDataSource();
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
+        DataSource dataSource = config.getDataSource();
         assertThat(dataSource)
                   .isInstanceOf(BasicDataSource.class);
     }
@@ -65,9 +70,8 @@ public class DomaTransactionNotSupportedConfigTest {
      */
     @Test
     public void getTransactionManager() throws Exception {
-
-        assertThatThrownBy(() -> DomaTransactionNotSupportedConfig.singleton()
-                                                                             .getTransactionManager())
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
+        assertThatThrownBy(config::getTransactionManager)
                   .isInstanceOf(UnsupportedOperationException.class)
         ;
     }
@@ -79,8 +83,8 @@ public class DomaTransactionNotSupportedConfigTest {
      */
     @Test
     public void getNaming() throws Exception {
-        Naming naming = DomaTransactionNotSupportedConfig.singleton()
-                                                         .getNaming();
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
+        Naming naming = config.getNaming();
         assertThat(naming)
                   .isEqualTo(Naming.SNAKE_UPPER_CASE);
     }
@@ -121,7 +125,8 @@ public class DomaTransactionNotSupportedConfigTest {
      */
     @Test
     public void getJdbcLogger() {
-        JdbcLogger jdbcLogger = DomaTransactionNotSupportedConfig.singleton().getJdbcLogger();
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
+        JdbcLogger jdbcLogger = config.getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(UtilLoggingJdbcLogger.class));
     }
 
@@ -140,7 +145,7 @@ public class DomaTransactionNotSupportedConfigTest {
      */
     @Test
     public void getStatementProperties() {
-        DomaTransactionNotSupportedConfig config = DomaTransactionNotSupportedConfig.singleton();
+        DomaTransactionNotSupportedConfig config = ReflectionUtil.newInstance(DomaTransactionNotSupportedConfig.class);
         assertThat(config.getMaxRows(), is(1000));
         assertThat(config.getFetchSize(), is(200));
         assertThat(config.getQueryTimeout(), is(30));
@@ -158,5 +163,17 @@ public class DomaTransactionNotSupportedConfigTest {
         assertThat(config.getFetchSize(), is(0));
         assertThat(config.getQueryTimeout(), is(0));
         assertThat(config.getBatchSize(), is(0));
+    }
+
+    /**
+     * 初期化されたConfigオブジェクトを取得できること。
+     *
+     * <p>Configオブジェクトの初期化タイミングがクラスロード時であり、
+     * 本テストクラスの前処理で設定したシステムリポジトリの状態で初期化される保証が無いため、
+     * 初期化によりオブジェクトが設定されていることのみ検証する。
+     */
+    @Test
+    public void getSingletonObject() {
+        assertNotNull(DomaTransactionNotSupportedConfig.singleton());
     }
 }

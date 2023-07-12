@@ -3,7 +3,6 @@ package nablarch.integration.doma;
 import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.reflection.ReflectionUtil;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,6 +19,7 @@ import javax.sql.DataSource;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -33,19 +33,19 @@ public class DomaConfigTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        // クラスの初期化が完了した後に実行されないと失敗するテストケースがあるので、冒頭で確実に初期化させる
-        DomaConfig.singleton();
-    }
-
     /**
      * システムリポジトリに定義したダイアレクトが取得できること。
+     *
+     * <p>Configオブジェクトの初期化タイミングがクラスロード時であり、
+     * 本テストクラスの前処理で設定したシステムリポジトリの状態で初期化される保証が無いため、
+     * 明示的に生成した結果から検証する。（以降のテストも同様）
+     *
      * @throws Exception
      */
     @Test
     public void getDialect() throws Exception {
-        Dialect dialect = DomaConfig.singleton().getDialect();
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
+        Dialect dialect = config.getDialect();
         assertThat(dialect, instanceOf(H2Dialect.class));
     }
 
@@ -55,7 +55,8 @@ public class DomaConfigTest {
      */
     @Test
     public void getDataSource() throws Exception {
-        DataSource dataSource = DomaConfig.singleton().getDataSource();
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
+        DataSource dataSource = config.getDataSource();
         assertThat(dataSource, instanceOf(LocalTransactionDataSource.class));
         assertThat(ReflectionUtil.getFieldValue(dataSource, "dataSource"), instanceOf(BasicDataSource.class));
     }
@@ -66,7 +67,8 @@ public class DomaConfigTest {
      */
     @Test
     public void getTransactionManager() throws Exception {
-        TransactionManager transactionManager = DomaConfig.singleton().getTransactionManager();
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
+        TransactionManager transactionManager = config.getTransactionManager();
         assertThat(transactionManager, instanceOf(LocalTransactionManager.class));
 
     }
@@ -77,7 +79,8 @@ public class DomaConfigTest {
      */
     @Test
     public void getNaming() throws Exception {
-        Naming naming = DomaConfig.singleton().getNaming();
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
+        Naming naming = config.getNaming();
         assertThat(naming.apply(null, "testName"), is("TEST_NAME"));
     }
 
@@ -114,7 +117,8 @@ public class DomaConfigTest {
      */
     @Test
     public void getJdbcLogger() {
-        JdbcLogger jdbcLogger = DomaConfig.singleton().getJdbcLogger();
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
+        JdbcLogger jdbcLogger = config.getJdbcLogger();
         assertThat(jdbcLogger, instanceOf(UtilLoggingJdbcLogger.class));
     }
 
@@ -133,7 +137,7 @@ public class DomaConfigTest {
      */
     @Test
     public void getStatementProperties() {
-        DomaConfig config = DomaConfig.singleton();
+        DomaConfig config = ReflectionUtil.newInstance(DomaConfig.class);
         assertThat(config.getMaxRows(), is(1000));
         assertThat(config.getFetchSize(), is(200));
         assertThat(config.getQueryTimeout(), is(30));
@@ -151,5 +155,17 @@ public class DomaConfigTest {
         assertThat(config.getFetchSize(), is(0));
         assertThat(config.getQueryTimeout(), is(0));
         assertThat(config.getBatchSize(), is(0));
+    }
+
+    /**
+     * 初期化されたConfigオブジェクトを取得できること。
+     *
+     * <p>Configオブジェクトの初期化タイミングがクラスロード時であり、
+     * 本テストクラスの前処理で設定したシステムリポジトリの状態で初期化される保証が無いため、
+     * 初期化によりオブジェクトが設定されていることのみ検証する。
+     */
+    @Test
+    public void getSingletonObject() {
+        assertNotNull(DomaConfig.singleton());
     }
 }
