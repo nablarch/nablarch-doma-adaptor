@@ -6,6 +6,7 @@ import org.jboss.arquillian.container.test.api.Deployment
 import org.jboss.arquillian.junit.Arquillian
 import org.jboss.shrinkwrap.api.ShrinkWrap
 import org.jboss.shrinkwrap.api.spec.WebArchive
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,6 +25,7 @@ import java.util.*
  * 
  * 本モジュールのテストを一括実行したい場合は、Gradleタスクを使用して行うこと。
  */
+@Ignore("DBのバリエーションテストに対応していないため")
 @RunWith(Arquillian::class)
 class JBatchIntegrationTest {
 
