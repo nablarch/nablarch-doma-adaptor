@@ -21,6 +21,7 @@
 
   <properties>
     <junit.additionalArgLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-opens=java.naming/javax.naming.spi=ALL-UNNAMED</junit.additionalArgLine>
+    <doma.version>2.62.0</doma.version>
   </properties>
 
   <dependencyManagement>
@@ -66,8 +67,8 @@
     </dependency>
     <dependency>
       <groupId>org.seasar.doma</groupId>
-      <artifactId>doma</artifactId>
-      <version>2.16.0</version>
+      <artifactId>doma-core</artifactId>
+      <version>${doma.version}</version>
     </dependency>
     <dependency>
       <groupId>com.nablarch.framework</groupId>
@@ -175,6 +176,20 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.6.2</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.seasar.doma</groupId>
+              <artifactId>doma-processor</artifactId>
+              <version>${doma.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
       </plugin>
     </plugins>
   </build>
