@@ -20,7 +20,7 @@ import nablarch.core.util.annotation.Published;
  */
 public final class DomaTransactionNotSupportedConfig implements Config {
 
-    /** シングルトンインスタンス({@link Dao#config()}で指定可能とするため、{@code INSTANCE}という名前で可視性はpublicの必要がある) */
+    /** シングルトンインスタンス({@link Dao}のconfigで指定可能とするため、{@code INSTANCE}という名前で可視性はpublicの必要がある) */
     public static final DomaTransactionNotSupportedConfig INSTANCE = new DomaTransactionNotSupportedConfig();
 
     /** ダイアレクト */

@@ -27,7 +27,7 @@ public class DomaDaoRepositoryTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     /**
-     * {@link Dao#config()}を指定していないDaoの実装クラスのインスタンスが取得できること、Daoには{@link DomaConfig}が設定されていること
+     * {@link Dao}のconfigを指定していないDaoの実装クラスのインスタンスが取得できること、Daoには{@link DomaConfig}が設定されていること
      * @throws Exception
      */
     @Test
@@ -51,7 +51,7 @@ public class DomaDaoRepositoryTest {
     }
 
     /**
-     * {@link Dao#config()}を指定しているDaoの実装クラスのインスタンスが取得できること、Daoには指定された{@link org.seasar.doma.jdbc.Config}が設定されていること
+     * {@link Dao}のconfigを指定しているDaoの実装クラスのインスタンスが取得できること、Daoには指定された{@link org.seasar.doma.jdbc.Config}が設定されていること
      * @throws Exception
      */
     @Test
@@ -85,7 +85,7 @@ public class DomaDaoRepositoryTest {
     }
 
     /**
-     * {@link Dao#config()}を指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
+     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
      * @throws Exception
      */
     @Test
@@ -105,7 +105,7 @@ public class DomaDaoRepositoryTest {
     }
 
     /**
-     * {@link Dao#config()}を指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
+     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
      * @throws Exception
      */
     @Test
@@ -117,7 +117,7 @@ public class DomaDaoRepositoryTest {
     }
 
     /**
-     * {@link Dao#config()}を指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
+     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
      * @throws Exception
      */
     @Test
