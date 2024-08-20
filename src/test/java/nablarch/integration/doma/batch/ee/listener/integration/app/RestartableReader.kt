@@ -22,7 +22,7 @@ class RestartableReader : AbstractItemReader() {
     private var errorPosition: String = "-1"
 
     override fun open(checkpoint: Serializable?) {
-        stream = DomaDaoRepository.get(InputDao::class.java).find()
+        stream = DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig.singleton()).find()
         iterator = stream!!.iterator()
         if (checkpoint is Int) {
             while (iterator.hasNext()) {

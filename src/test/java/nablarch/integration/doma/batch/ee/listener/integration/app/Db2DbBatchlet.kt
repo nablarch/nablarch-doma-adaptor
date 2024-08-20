@@ -12,7 +12,7 @@ class Db2DbBatchlet : AbstractBatchlet() {
 
     override fun process(): String {
         val outputDao = DomaDaoRepository.get(OutputDao::class.java)
-        val outputs = DomaDaoRepository.get(InputDao::class.java)
+        val outputs = DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig.singleton())
             .find()
             .use {
                 it.map(::OutputEntity)

@@ -2,7 +2,7 @@ package nablarch.integration.doma;
 
 import javax.sql.DataSource;
 
-import org.seasar.doma.SingletonConfig;
+import org.seasar.doma.Dao;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
@@ -19,11 +19,10 @@ import nablarch.core.util.annotation.Published;
  *
  * @author Naoki Yamamoto
  */
-@SingletonConfig
 public final class DomaConfig implements Config {
 
-    /** シングルトンインスタンス */
-    private static final DomaConfig CONFIG = new DomaConfig();
+    /** シングルトンインスタンス({@link Dao#config()}で指定可能とするため、{@code INSTANCE}という名前で可視性はpublicの必要がある) */
+    public static final DomaConfig INSTANCE = new DomaConfig();
 
     /** ダイアレクト */
     private final Dialect dialect;
@@ -112,7 +111,7 @@ public final class DomaConfig implements Config {
      */
     @Published
     public static DomaConfig singleton() {
-        return CONFIG;
+        return INSTANCE;
     }
 
     /**

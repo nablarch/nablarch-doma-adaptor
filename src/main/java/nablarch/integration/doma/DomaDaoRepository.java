@@ -1,9 +1,12 @@
 package nablarch.integration.doma;
 
+import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 import nablarch.core.util.annotation.Published;
+import org.seasar.doma.Dao;
+import org.seasar.doma.jdbc.Config;
 
 /**
  * Domaで使用するDaoの実装クラスを生成・保持するクラス。
@@ -12,15 +15,18 @@ import nablarch.core.util.annotation.Published;
  */
 @Published
 public final class DomaDaoRepository {
+    private static final Map<Class<?>, Object> LEGACY_DAO_IMPL_MAP = new WeakHashMap<>();
 
     /** Dao実装クラスのインスタンスを保持するMap */
-    private static final Map<Class<?>, Object> DAO_IMPL_MAP = new WeakHashMap<>();
+    private static final Map<DaoClassConfigPair, Object> DAO_IMPL_MAP = new WeakHashMap<>();
 
     /** 隠蔽コンストラクタ */
     private DomaDaoRepository() {}
 
     /**
      * 指定されたDaoインタフェースの実装クラスを取得する。
+     * Daoの実装クラスのインスタンス生成の際には、{@link DomaConfig}をコンストラクタ引数に指定することを試みる。
+     * Daoの実装クラスに{@link Config}を引数に取るコンストラクタが存在しない場合は、デフォルトコンストラクタを利用する。
      *
      * @param daoClass Daoインタフェースの{@link Class}
      * @param <T> Daoインタフェース
@@ -28,25 +34,102 @@ public final class DomaDaoRepository {
      */
     @SuppressWarnings("unchecked")
     public static synchronized  <T> T get(final Class<T> daoClass) {
-        return (T) DAO_IMPL_MAP.computeIfAbsent(daoClass, DomaDaoRepository::createInstance);
+        T daoImplInstance = (T) LEGACY_DAO_IMPL_MAP.get(daoClass);
+
+        if (daoImplInstance != null) {
+            return daoImplInstance;
+        }
+
+        daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassConfigPair(daoClass, DomaConfig.class));
+
+        if (daoImplInstance != null) {
+            return daoImplInstance;
+        }
+
+        if (hasDefaultConstructor(daoClass)) {
+            // @Dao#configが指定されている場合はデフォルトコンストラクタでインスタンス化
+            return (T) LEGACY_DAO_IMPL_MAP.computeIfAbsent(daoClass, d -> createInstance(d, null));
+        }
+
+        return (T) DAO_IMPL_MAP.computeIfAbsent(
+                new DaoClassConfigPair(daoClass, DomaConfig.class), d -> createInstance(daoClass, DomaConfig.singleton())
+        );
+    }
+
+    /**
+     * 指定されたDaoインタフェースの実装クラスのインスタンスを、指定された{@link Config}をコンストラクタ引数として指定して取得する。
+     * Daoインターフェースに{@link Dao}の{@code config}属性が指定されていた場合は、求められる動作を満たせないため例外をスローする
+     *
+     * @param daoClass Daoインタフェースの{@link Class}
+     * @param config {@link Config}の{@link Class}
+     * @param <T> Daoインタフェース
+     * @return Dao実装クラス
+     */
+    @SuppressWarnings("unchecked")
+    public static synchronized  <T> T get(final Class<T> daoClass, Config config) {
+        T daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassConfigPair(daoClass, config.getClass()));
+
+        if (daoImplInstance != null) {
+            return daoImplInstance;
+        }
+
+        if (hasDefaultConstructor(daoClass)) {
+            throw new IllegalArgumentException(
+                    "implementation class is invalid." +
+                            " Do not specify config attribute for Dao annotation." +
+                            " class name = [" + daoClass.getName() + ']'
+            );
+        }
+
+        return (T) DAO_IMPL_MAP.computeIfAbsent(
+                new DaoClassConfigPair(daoClass, config.getClass()), d -> createInstance(daoClass, config)
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<T> findDaoImplClass(Class<T> daoClass) {
+        final String implClassName = daoClass.getName() + "Impl";
+        try {
+            return (Class<T>) Thread.currentThread().getContextClassLoader().loadClass(implClassName);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("implementation class is undefined. class name = [" + daoClass.getName() + ']', e);
+        }
+    }
+
+    private static boolean hasDefaultConstructor(Class<?> daoClass) {
+        try {
+            findDaoImplClass(daoClass).getConstructor();
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     /**
      * 指定されたDaoインタフェースの実装クラスを生成する。
      *
      * @param daoClass Daoインタフェースの{@link Class}
+     * @param config {@link Config}のインスタンス
      * @param <T> Daoインタフェース
      * @return Dao実装クラス
      */
-    @SuppressWarnings("unchecked")
-    private static <T> T createInstance(final Class<T> daoClass) {
-        final String implClassName = daoClass.getName() + "Impl";
+    private static <T> T createInstance(final Class<T> daoClass, final Config config) {
+        final Class<T> implClass = findDaoImplClass(daoClass);
+
         try {
-            final Class<T> implClass = (Class<T>) Thread.currentThread().getContextClassLoader().loadClass(implClassName);
-            return implClass.getConstructor().newInstance();
+            if (config != null) {
+                // Configを指定された場合はConfigをコンストラクタ引数に指定する
+                Constructor<T> constructor = implClass.getConstructor(Config.class);
+                return constructor.newInstance(config);
+            } else {
+                return implClass.getConstructor().newInstance();
+            }
         } catch (Exception e) {
-            throw new IllegalArgumentException("implementation class is undefined. class name = [" + daoClass.getName() + ']', e);
+            throw new IllegalArgumentException("implementation class is invalid. class name = [" + daoClass.getName() + ']', e);
         }
 
+    }
+
+    record DaoClassConfigPair(Class<?> daoClass, Class<? extends Config> configClass) {
     }
 }
