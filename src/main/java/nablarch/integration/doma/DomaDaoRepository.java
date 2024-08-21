@@ -18,7 +18,7 @@ public final class DomaDaoRepository {
     private static final Map<Class<?>, Object> LEGACY_DAO_IMPL_MAP = new WeakHashMap<>();
 
     /** Dao実装クラスのインスタンスを保持するMap */
-    private static final Map<DaoClassConfigPair, Object> DAO_IMPL_MAP = new WeakHashMap<>();
+    private static final Map<DaoClassWithConfigKey, Object> DAO_IMPL_MAP = new WeakHashMap<>();
 
     /** 隠蔽コンストラクタ */
     private DomaDaoRepository() {}
@@ -40,7 +40,7 @@ public final class DomaDaoRepository {
             return daoImplInstance;
         }
 
-        daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassConfigPair(daoClass, DomaConfig.class));
+        daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassWithConfigKey(daoClass, DomaConfig.singleton()));
 
         if (daoImplInstance != null) {
             return daoImplInstance;
@@ -52,7 +52,7 @@ public final class DomaDaoRepository {
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
-                new DaoClassConfigPair(daoClass, DomaConfig.class), d -> createInstance(daoClass, DomaConfig.singleton())
+                new DaoClassWithConfigKey(daoClass, DomaConfig.singleton()), d -> createInstance(daoClass, DomaConfig.singleton())
         );
     }
 
@@ -67,7 +67,7 @@ public final class DomaDaoRepository {
      */
     @SuppressWarnings("unchecked")
     public static synchronized  <T> T get(final Class<T> daoClass, Config config) {
-        T daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassConfigPair(daoClass, config.getClass()));
+        T daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassWithConfigKey(daoClass, config));
 
         if (daoImplInstance != null) {
             return daoImplInstance;
@@ -82,7 +82,7 @@ public final class DomaDaoRepository {
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
-                new DaoClassConfigPair(daoClass, config.getClass()), d -> createInstance(daoClass, config)
+                new DaoClassWithConfigKey(daoClass, config), d -> createInstance(daoClass, config)
         );
     }
 
@@ -144,6 +144,6 @@ public final class DomaDaoRepository {
         }
     }
 
-    record DaoClassConfigPair(Class<?> daoClass, Class<? extends Config> configClass) {
+    record DaoClassWithConfigKey(Class<?> daoClass, Config config) {
     }
 }
