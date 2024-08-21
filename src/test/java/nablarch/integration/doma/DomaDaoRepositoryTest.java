@@ -14,6 +14,7 @@ import org.junit.rules.ExpectedException;
 import org.seasar.doma.Dao;
 import org.seasar.doma.internal.RuntimeConfig;
 import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.ConfigProvider;
 
 /**
  * {@link DomaDaoRepository}のテストクラス。
@@ -60,13 +61,19 @@ public class DomaDaoRepositoryTest {
         assertThat(dao1, instanceOf(TestLegacyDao1Impl.class));
 
         // Dao#configで指定したConfigが設定される
-        assertThat(unwrapConfig(((TestLegacyDao1Impl) dao1).getConfig()), instanceOf(DomaConfig.class));
+        assertThat(unwrapConfig(((ConfigProvider) dao1).getConfig()), instanceOf(DomaConfig.class));
 
         TestLegacyDao2 dao2 = DomaDaoRepository.get(TestLegacyDao2.class);
         assertThat(dao2, instanceOf(TestLegacyDao2Impl.class));
 
         // Dao#configで指定したConfigが設定される
-        assertThat(unwrapConfig(((TestLegacyDao2Impl) dao2).getConfig()), instanceOf(DomaTransactionNotSupportedConfig.class));
+        assertThat(unwrapConfig(((ConfigProvider) dao2).getConfig()), instanceOf(DomaTransactionNotSupportedConfig.class));
+
+        TestLegacyDao3 dao3 = DomaDaoRepository.get(TestLegacyDao3.class);
+        assertThat(dao3, instanceOf(TestLegacyDao3Impl.class));
+
+        // Dao#configで指定したConfigが設定される
+        assertThat(unwrapConfig(((ConfigProvider) dao3).getConfig()), instanceOf(TestLegacySingletonCustomDomaConfig.class));
     }
 
     /**
@@ -82,30 +89,34 @@ public class DomaDaoRepositoryTest {
         TestLegacyDao2 dao3 = DomaDaoRepository.get(TestLegacyDao2.class);
         TestLegacyDao2 dao4 = DomaDaoRepository.get(TestLegacyDao2.class);
         assertThat(dao3, sameInstance(dao4));
+
+        TestLegacyDao3 dao5 = DomaDaoRepository.get(TestLegacyDao3.class);
+        TestLegacyDao3 dao6 = DomaDaoRepository.get(TestLegacyDao3.class);
+        assertThat(dao5, sameInstance(dao6));
     }
 
     /**
-     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
+     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定できること
      * @throws Exception
      */
     @Test
     public void get_with_config() {
-        TestDao dao1 = DomaDaoRepository.get(TestDao.class, DomaConfig.singleton());
-        TestDao dao2 = DomaDaoRepository.get(TestDao.class, DomaConfig.singleton());
+        TestDao dao1 = DomaDaoRepository.get(TestDao.class, DomaConfig.class);
+        TestDao dao2 = DomaDaoRepository.get(TestDao.class, DomaConfig.class);
         // 同じインスタンス
         assertThat(dao1, sameInstance(dao2));
-        assertThat(unwrapConfig(((TestDaoImpl) dao1).getConfig()), instanceOf(DomaConfig.class));
+        assertThat(unwrapConfig(((ConfigProvider) dao1).getConfig()), instanceOf(DomaConfig.class));
 
-        TestDao dao3 = DomaDaoRepository.get(TestDao.class, DomaTransactionNotSupportedConfig.singleton());
-        TestDao dao4 = DomaDaoRepository.get(TestDao.class, DomaTransactionNotSupportedConfig.singleton());
+        TestDao dao3 = DomaDaoRepository.get(TestDao.class, DomaTransactionNotSupportedConfig.class);
+        TestDao dao4 = DomaDaoRepository.get(TestDao.class, DomaTransactionNotSupportedConfig.class);
         // 同じインスタンス
         assertThat(dao3, sameInstance(dao4));
         // DomaDaoRepository.get(daoClass, Config)で指定したConfigが設定される
-        assertThat(unwrapConfig(((TestDaoImpl) dao3).getConfig()), instanceOf(DomaTransactionNotSupportedConfig.class));
+        assertThat(unwrapConfig(((ConfigProvider) dao3).getConfig()), instanceOf(DomaTransactionNotSupportedConfig.class));
     }
 
     /**
-     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
+     * {@link Dao}のconfigを指定しているDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定すると例外がスローされること
      * @throws Exception
      */
     @Test
@@ -113,11 +124,11 @@ public class DomaDaoRepositoryTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("implementation class is invalid. Do not specify config attribute for Dao annotation. class name = [" + TestLegacyDao1.class.getName() + ']');
 
-        DomaDaoRepository.get(TestLegacyDao1.class, DomaTransactionNotSupportedConfig.singleton());
+        DomaDaoRepository.get(TestLegacyDao1.class, DomaTransactionNotSupportedConfig.class);
     }
 
     /**
-     * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Config)}でDaoの実装クラスが使用する{@link Config}を指定できること
+     * {@link Dao}のconfigを指定しているDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定すると例外がスローされること
      * @throws Exception
      */
     @Test
@@ -125,7 +136,19 @@ public class DomaDaoRepositoryTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("implementation class is invalid. Do not specify config attribute for Dao annotation. class name = [" + TestLegacyDao2.class.getName() + ']');
 
-        DomaDaoRepository.get(TestLegacyDao2.class, DomaConfig.singleton());
+        DomaDaoRepository.get(TestLegacyDao2.class, DomaConfig.class);
+    }
+
+    /**
+     * {@link Dao}のconfigを指定しているDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定すると例外がスローされること
+     * @throws Exception
+     */
+    @Test
+    public void get_legacy_with_config3() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("implementation class is invalid. Do not specify config attribute for Dao annotation. class name = [" + TestLegacyDao3.class.getName() + ']');
+
+        DomaDaoRepository.get(TestLegacyDao3.class, DomaConfig.class);
     }
 
     @Test

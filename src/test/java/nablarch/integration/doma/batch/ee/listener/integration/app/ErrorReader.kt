@@ -19,7 +19,7 @@ class ErrorReader : AbstractItemReader() {
     private lateinit var errorPosition: String
 
     override fun open(checkpoint: Serializable?) {
-        stream = DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig.singleton()).find()
+        stream = DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig::class.java).find()
         iterator = stream!!.iterator()
     }
 

@@ -9,7 +9,7 @@ import jakarta.inject.*
 @Dependent
 class DoubleBatchlet : AbstractBatchlet() {
     override fun process(): String {
-        DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig.singleton()).update10Times()
+        DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig::class.java).update10Times()
         return "ok"
     }
 }

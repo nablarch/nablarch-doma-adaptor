@@ -17,7 +17,7 @@ class SimpleReader : AbstractItemReader() {
     private var now:Int? = null
 
     override fun open(checkpoint: Serializable?) {
-        stream = DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig.singleton()).find()
+        stream = DomaDaoRepository.get(InputDao::class.java, DomaTransactionNotSupportedConfig::class.java).find()
         iterator = stream!!.iterator()
         if (checkpoint is Int) {
             while (iterator.hasNext()) {

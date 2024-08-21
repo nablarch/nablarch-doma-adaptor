@@ -22,11 +22,10 @@ import nablarch.core.util.annotation.Published;
 public final class DomaConfig implements Config {
 
     /**
-     * シングルトンインスタンス({@link Dao}のconfigで指定可能とするため、{@code INSTANCE}という名前で可視性はpublicの必要がある)。
-     * 互換性のために存在するフィールドなので、これを直接利用することは推奨しない。
+     * シングルトンインスタンス。
+     * 互換性のために残している。
      */
-    @Deprecated
-    public static final DomaConfig INSTANCE = new DomaConfig();
+    private static final DomaConfig CONFIG = new DomaConfig();
 
     /** ダイアレクト */
     private final Dialect dialect;
@@ -49,7 +48,7 @@ public final class DomaConfig implements Config {
     /**
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
-    private DomaConfig() {
+    public DomaConfig() {
         final ConfigHolder holder = new ConfigHolder();
 
         //ローカルトランザクションを取得するときにロガーが必要なので先にフィールドを初期化している
@@ -115,7 +114,7 @@ public final class DomaConfig implements Config {
      */
     @Published
     public static DomaConfig singleton() {
-        return INSTANCE;
+        return CONFIG;
     }
 
     /**

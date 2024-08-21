@@ -1,6 +1,7 @@
 package nablarch.integration.doma;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -15,10 +16,16 @@ import org.seasar.doma.jdbc.Config;
  */
 @Published
 public final class DomaDaoRepository {
+    /** Dao実装クラスのインスタンスを保持するMap（{@link org.seasar.doma.SingletonConfig}および{@link Dao}のconfig属性を使用している実装向け */
     private static final Map<Class<?>, Object> LEGACY_DAO_IMPL_MAP = new WeakHashMap<>();
 
     /** Dao実装クラスのインスタンスを保持するMap */
     private static final Map<DaoClassWithConfigKey, Object> DAO_IMPL_MAP = new WeakHashMap<>();
+
+    private static final Map<Class<? extends Config>, Config> CONFIG_MAP = new HashMap<>(Map.of(
+            DomaConfig.class, DomaConfig.singleton(),
+            DomaTransactionNotSupportedConfig.class, DomaTransactionNotSupportedConfig.singleton()
+    ));
 
     /** 隠蔽コンストラクタ */
     private DomaDaoRepository() {}
@@ -40,7 +47,7 @@ public final class DomaDaoRepository {
             return daoImplInstance;
         }
 
-        daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassWithConfigKey(daoClass, DomaConfig.singleton()));
+        daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassWithConfigKey(daoClass, CONFIG_MAP.get(DomaConfig.class)));
 
         if (daoImplInstance != null) {
             return daoImplInstance;
@@ -52,7 +59,7 @@ public final class DomaDaoRepository {
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
-                new DaoClassWithConfigKey(daoClass, DomaConfig.singleton()), d -> createInstance(daoClass, DomaConfig.singleton())
+                new DaoClassWithConfigKey(daoClass, DomaConfig.singleton()), d -> createInstance(daoClass, CONFIG_MAP.get(DomaConfig.class))
         );
     }
 
@@ -61,12 +68,20 @@ public final class DomaDaoRepository {
      * Daoインターフェースに{@link Dao}の{@code config}属性が指定されていた場合は、求められる動作を満たせないため例外をスローする
      *
      * @param daoClass Daoインタフェースの{@link Class}
-     * @param config {@link Config}の{@link Class}
+     * @param configClass {@link Config}の{@link Class}
      * @param <T> Daoインタフェース
      * @return Dao実装クラス
      */
     @SuppressWarnings("unchecked")
-    public static synchronized  <T> T get(final Class<T> daoClass, Config config) {
+    public static synchronized  <T> T get(final Class<T> daoClass, Class<? extends Config> configClass) {
+        Config c = CONFIG_MAP.get(configClass);
+
+        if (c == null) {
+            c = createConfigInstance(configClass);
+        }
+
+        Config config = c;
+
         T daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassWithConfigKey(daoClass, config));
 
         if (daoImplInstance != null) {
@@ -82,7 +97,11 @@ public final class DomaDaoRepository {
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
-                new DaoClassWithConfigKey(daoClass, config), d -> createInstance(daoClass, config)
+                new DaoClassWithConfigKey(daoClass, config), d -> {
+                    T dao = createInstance(daoClass, config);
+                    CONFIG_MAP.put(configClass, config);
+                    return dao;
+                }
         );
     }
 
@@ -141,6 +160,20 @@ public final class DomaDaoRepository {
             return implClass.getConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalArgumentException("implementation class is invalid. class name = [" + daoClass.getName() + ']', e);
+        }
+    }
+
+    /**
+     * {@link Config}のインスタンスを生成する。
+     *
+     * @param configClass {@link Config}の{@link Class}クラス
+     * @return {@link Config}のインスタンス
+     */
+    private static Config createConfigInstance(final Class<? extends Config> configClass) {
+        try {
+            return configClass.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("default constructor not defined in Config class. class name = [" + configClass.getName() + ']', e);
         }
     }
 
