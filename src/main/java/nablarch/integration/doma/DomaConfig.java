@@ -21,7 +21,11 @@ import nablarch.core.util.annotation.Published;
  */
 public final class DomaConfig implements Config {
 
-    /** シングルトンインスタンス({@link Dao}のconfigで指定可能とするため、{@code INSTANCE}という名前で可視性はpublicの必要がある) */
+    /**
+     * シングルトンインスタンス({@link Dao}のconfigで指定可能とするため、{@code INSTANCE}という名前で可視性はpublicの必要がある)。
+     * 互換性のために存在するフィールドなので、これを直接利用することは推奨しない。
+     */
+    @Deprecated
     public static final DomaConfig INSTANCE = new DomaConfig();
 
     /** ダイアレクト */
