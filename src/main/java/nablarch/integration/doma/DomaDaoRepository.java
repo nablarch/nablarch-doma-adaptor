@@ -75,13 +75,7 @@ public final class DomaDaoRepository {
      */
     @SuppressWarnings("unchecked")
     public static synchronized  <T> T get(final Class<T> daoClass, Class<? extends Config> configClass) {
-        Config c = CONFIG_MAP.get(configClass);
-
-        if (c == null) {
-            c = createConfigInstance(configClass);
-        }
-
-        Config config = c;
+        Config config = CONFIG_MAP.computeIfAbsent(configClass, DomaDaoRepository::createConfigInstance);
 
         T daoImplInstance = (T) DAO_IMPL_MAP.get(new DaoClassWithConfigKey(daoClass, config));
 
@@ -99,12 +93,7 @@ public final class DomaDaoRepository {
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
                 new DaoClassWithConfigKey(daoClass, config),
-                key -> {
-                    T dao = createInstance(daoClass, config);
-                    // Daoのインスタンスに生成した場合はConfigのインスタンスをキャッシュする
-                    CONFIG_MAP.putIfAbsent(configClass, config);
-                    return dao;
-                }
+                key -> createInstance(daoClass, config)
         );
     }
 
