@@ -99,7 +99,8 @@ public final class DomaDaoRepository {
         return (T) DAO_IMPL_MAP.computeIfAbsent(
                 new DaoClassWithConfigKey(daoClass, config), d -> {
                     T dao = createInstance(daoClass, config);
-                    CONFIG_MAP.put(configClass, config);
+                    // Daoのインスタンスに生成した場合はConfigのインスタンスをキャッシュする
+                    CONFIG_MAP.putIfAbsent(configClass, config);
                     return dao;
                 }
         );
