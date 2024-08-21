@@ -108,6 +108,13 @@ public final class DomaDaoRepository {
         );
     }
 
+    /**
+     * Daoインタフェースの実装クラスを取得する。
+     *
+     * @param daoClass Daoインタフェースの{@link Class}
+     * @return Daoインタフェースの実装クラス
+     * @param <T> Daoインタフェースの型
+     */
     @SuppressWarnings("unchecked")
     private static <T> Class<T> findDaoImplClass(Class<T> daoClass) {
         final String implClassName = daoClass.getName() + "Impl";
@@ -180,6 +187,6 @@ public final class DomaDaoRepository {
         }
     }
 
-    record DaoClassWithConfigKey(Class<?> daoClass, Config config) {
+    private record DaoClassWithConfigKey(Class<?> daoClass, Config config) {
     }
 }
