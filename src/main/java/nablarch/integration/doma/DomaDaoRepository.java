@@ -59,7 +59,8 @@ public final class DomaDaoRepository {
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
-                new DaoClassWithConfigKey(daoClass, DomaConfig.singleton()), d -> createInstance(daoClass, CONFIG_MAP.get(DomaConfig.class))
+                new DaoClassWithConfigKey(daoClass, CONFIG_MAP.get(DomaConfig.class)),
+                key -> createInstance(daoClass, CONFIG_MAP.get(DomaConfig.class))
         );
     }
 
@@ -97,7 +98,8 @@ public final class DomaDaoRepository {
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
-                new DaoClassWithConfigKey(daoClass, config), d -> {
+                new DaoClassWithConfigKey(daoClass, config),
+                key -> {
                     T dao = createInstance(daoClass, config);
                     // Daoのインスタンスに生成した場合はConfigのインスタンスをキャッシュする
                     CONFIG_MAP.putIfAbsent(configClass, config);
