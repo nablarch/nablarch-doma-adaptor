@@ -48,7 +48,7 @@ public final class DomaDaoRepository {
 
         if (hasNonDefaultConfigAttribute(daoClass)) {
             // @Dao#configが指定されている場合はデフォルトコンストラクタでインスタンス化
-            return (T) LEGACY_DAO_IMPL_MAP.computeIfAbsent(daoClass, d -> createInstance(d, null));
+            return (T) LEGACY_DAO_IMPL_MAP.computeIfAbsent(daoClass, DomaDaoRepository::createInstance);
         }
 
         return (T) DAO_IMPL_MAP.computeIfAbsent(
@@ -109,7 +109,7 @@ public final class DomaDaoRepository {
     }
 
     /**
-     * 指定されたDaoインタフェースの実装クラスを生成する。
+     * 指定されたDaoインタフェースの実装クラスのインスタンスを生成する。インスタンス生成の際には、{@link Config}をコンストラクタ引数に指定する。
      *
      * @param daoClass Daoインタフェースの{@link Class}
      * @param config {@link Config}のインスタンス
@@ -120,17 +120,28 @@ public final class DomaDaoRepository {
         final Class<T> implClass = findDaoImplClass(daoClass);
 
         try {
-            if (config != null) {
-                // Configを指定された場合はConfigをコンストラクタ引数に指定する
-                Constructor<T> constructor = implClass.getConstructor(Config.class);
-                return constructor.newInstance(config);
-            } else {
-                return implClass.getConstructor().newInstance();
-            }
+            Constructor<T> constructor = implClass.getConstructor(Config.class);
+            return constructor.newInstance(config);
         } catch (Exception e) {
             throw new IllegalArgumentException("implementation class is invalid. class name = [" + daoClass.getName() + ']', e);
         }
+    }
 
+    /**
+     * 指定されたDaoインタフェースの実装クラスのインスタンスを生成する。
+     *
+     * @param daoClass Daoインタフェースの{@link Class}
+     * @param <T> Daoインタフェース
+     * @return Dao実装クラス
+     */
+    private static <T> T createInstance(final Class<T> daoClass) {
+        final Class<T> implClass = findDaoImplClass(daoClass);
+
+        try {
+            return implClass.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("implementation class is invalid. class name = [" + daoClass.getName() + ']', e);
+        }
     }
 
     record DaoClassConfigPair(Class<?> daoClass, Class<? extends Config> configClass) {
