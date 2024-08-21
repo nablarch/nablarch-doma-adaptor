@@ -46,7 +46,7 @@ public final class DomaDaoRepository {
             return daoImplInstance;
         }
 
-        if (hasDefaultConstructor(daoClass)) {
+        if (hasNonDefaultConfigAttribute(daoClass)) {
             // @Dao#configが指定されている場合はデフォルトコンストラクタでインスタンス化
             return (T) LEGACY_DAO_IMPL_MAP.computeIfAbsent(daoClass, d -> createInstance(d, null));
         }
@@ -73,7 +73,7 @@ public final class DomaDaoRepository {
             return daoImplInstance;
         }
 
-        if (hasDefaultConstructor(daoClass)) {
+        if (hasNonDefaultConfigAttribute(daoClass)) {
             throw new IllegalArgumentException(
                     "implementation class is invalid." +
                             " Do not specify config attribute for Dao annotation." +
@@ -96,13 +96,16 @@ public final class DomaDaoRepository {
         }
     }
 
-    private static boolean hasDefaultConstructor(Class<?> daoClass) {
-        try {
-            findDaoImplClass(daoClass).getConstructor();
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
+    /**
+     * Daoの{@link Class}に付与された{@link Dao}アノテーションにconfig属性がデフォルト値以外に設定されている場合、{@code true}を返却する。
+     *
+     * @param daoClass Daoの{@link Class}クラス
+     * @return Daoの{@link Class}に付与された{@link Dao}アノテーションにconfig属性がデフォルト値以外に設定されている場合は{@code true}
+     */
+    @SuppressWarnings("deprecation")
+    private static boolean hasNonDefaultConfigAttribute(Class<?> daoClass) {
+        return daoClass.getAnnotation(Dao.class) != null
+                && !daoClass.getAnnotation(Dao.class).config().equals(Config.class);
     }
 
     /**
