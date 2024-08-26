@@ -2,7 +2,6 @@ package nablarch.integration.doma;
 
 import javax.sql.DataSource;
 
-import org.seasar.doma.Dao;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
