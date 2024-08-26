@@ -29,7 +29,6 @@ public class DomaDaoRepositoryTest {
 
     /**
      * {@link Dao}のconfigを指定していないDaoの実装クラスのインスタンスが取得できること、Daoには{@link DomaConfig}が設定されていること
-     * @throws Exception
      */
     @Test
     public void get() {
@@ -42,7 +41,6 @@ public class DomaDaoRepositoryTest {
 
     /**
      * 実装クラスがキャッシュされているため、同一のインスタンスが返却されること
-     * @throws Exception
      */
     @Test
     public void get_cache() {
@@ -53,7 +51,6 @@ public class DomaDaoRepositoryTest {
 
     /**
      * {@link Dao}のconfigを指定しているDaoの実装クラスのインスタンスが取得できること、Daoには指定された{@link org.seasar.doma.jdbc.Config}が設定されていること
-     * @throws Exception
      */
     @Test
     public void get_legacy() {
@@ -78,7 +75,6 @@ public class DomaDaoRepositoryTest {
 
     /**
      * 実装クラスがキャッシュされているため、同一のインスタンスが返却されること
-     * @throws Exception
      */
     @Test
     public void get_legacy_cache() {
@@ -97,7 +93,6 @@ public class DomaDaoRepositoryTest {
 
     /**
      * {@link Dao}のconfigを指定していないDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定できること
-     * @throws Exception
      */
     @Test
     public void get_with_config() {
@@ -117,10 +112,9 @@ public class DomaDaoRepositoryTest {
 
     /**
      * {@link Dao}のconfigを指定しているDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定すると例外がスローされること
-     * @throws Exception
      */
     @Test
-    public void get_legacy_with_config1() {
+    public void get_legacy_dao_with_config1() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("implementation class is invalid. Do not specify config attribute for Dao annotation. class name = [" + TestLegacyDao1.class.getName() + ']');
 
@@ -129,10 +123,9 @@ public class DomaDaoRepositoryTest {
 
     /**
      * {@link Dao}のconfigを指定しているDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定すると例外がスローされること
-     * @throws Exception
      */
     @Test
-    public void get_legacy_with_config2() {
+    public void get_legacy_dao_with_config2() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("implementation class is invalid. Do not specify config attribute for Dao annotation. class name = [" + TestLegacyDao2.class.getName() + ']');
 
@@ -141,14 +134,24 @@ public class DomaDaoRepositoryTest {
 
     /**
      * {@link Dao}のconfigを指定しているDaoの場合、{@link DomaDaoRepository#get(Class, Class)}でDaoの実装クラスが使用する{@link Config}の{@link Class}を指定すると例外がスローされること
-     * @throws Exception
      */
     @Test
-    public void get_legacy_with_config3() {
+    public void get_legacy_dao_with_config3() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("implementation class is invalid. Do not specify config attribute for Dao annotation. class name = [" + TestLegacyDao3.class.getName() + ']');
 
         DomaDaoRepository.get(TestLegacyDao3.class, DomaConfig.class);
+    }
+
+    /**
+     * publicな引数なしのコンストラクタを持たない{@link Config}の場合、{@link DomaDaoRepository#get(Class, Class)}で{@link Config}を明示的に指定すると例外がスローされること
+     */
+    @Test
+    public void get_with_legacy_config() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("default constructor not defined in Config class. class name = [" + TestLegacySingletonCustomDomaConfig.class.getName() + "]");
+
+        DomaDaoRepository.get(TestDao.class, TestLegacySingletonCustomDomaConfig.class);
     }
 
     @Test
