@@ -36,13 +36,13 @@ public class DomaDaoRepositoryTest {
         assertThat(dao1, instanceOf(TestDaoImpl.class));
 
         // デフォルトではDomaConfigが設定される
-        assertThat(unwrapConfig(((TestDaoImpl) dao1).getConfig()), instanceOf(DomaConfig.class));
+        assertThat(unwrapConfig(((ConfigProvider) dao1).getConfig()), instanceOf(DomaConfig.class));
 
         TestDao dao2 = DomaDaoRepository.get(TestDao.class, TestCustomDomaConfig.class);
         assertThat(dao2, instanceOf(TestDaoImpl.class));
 
         // 明示的にConfigを指定すると、指定したConfigのインスタンスが設定される
-        assertThat(unwrapConfig(((TestDaoImpl) dao2).getConfig()), instanceOf(TestCustomDomaConfig.class));
+        assertThat(unwrapConfig(((ConfigProvider) dao2).getConfig()), instanceOf(TestCustomDomaConfig.class));
 
     }
 
