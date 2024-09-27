@@ -8,9 +8,7 @@ import org.seasar.doma.Select;
 import org.seasar.doma.jdbc.BatchResult;
 import org.seasar.doma.jdbc.SelectOptions;
 
-import nablarch.integration.doma.DomaConfig;
-
-@Dao(config = DomaConfig.class)
+@Dao
 public interface OutputDao {
 
     @BatchInsert

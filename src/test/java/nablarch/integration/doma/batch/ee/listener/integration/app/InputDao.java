@@ -9,9 +9,7 @@ import org.seasar.doma.Suppress;
 import org.seasar.doma.Update;
 import org.seasar.doma.message.Message;
 
-import nablarch.integration.doma.DomaTransactionNotSupportedConfig;
-
-@Dao(config = DomaTransactionNotSupportedConfig.class)
+@Dao
 public interface InputDao {
 
     @Select(strategy = SelectType.RETURN)

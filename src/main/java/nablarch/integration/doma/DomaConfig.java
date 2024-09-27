@@ -2,7 +2,6 @@ package nablarch.integration.doma;
 
 import javax.sql.DataSource;
 
-import org.seasar.doma.SingletonConfig;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.Naming;
@@ -19,10 +18,12 @@ import nablarch.core.util.annotation.Published;
  *
  * @author Naoki Yamamoto
  */
-@SingletonConfig
 public final class DomaConfig implements Config {
 
-    /** シングルトンインスタンス */
+    /**
+     * シングルトンインスタンス。
+     * 互換性のために残している。
+     */
     private static final DomaConfig CONFIG = new DomaConfig();
 
     /** ダイアレクト */
@@ -46,7 +47,7 @@ public final class DomaConfig implements Config {
     /**
      * DBアクセスを行うための設定を持つインスタンスを生成する。
      */
-    private DomaConfig() {
+    public DomaConfig() {
         final ConfigHolder holder = new ConfigHolder();
 
         //ローカルトランザクションを取得するときにロガーが必要なので先にフィールドを初期化している
